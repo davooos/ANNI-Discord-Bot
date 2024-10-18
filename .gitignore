@@ -1,0 +1,4 @@
+#Ignore .bot.yaml file
+.bot.yaml
+#Ignore virtual environment for python
+.venv
