@@ -3,13 +3,14 @@ import discord
 from discord.ext import commands
 import datetime
 from datetime import timezone
-#import discord-timestamps
+
 
 
 
 class time(commands.Cog):
 	def __init__(self, bot):
 		self.bot = bot
+		
 	'''		DEPRECIATED CODE
 	def getTime(self, h: int(), m: int(), s: int()) -> dict():
 		config = helpers.loadConfig("time")

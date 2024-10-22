@@ -2,6 +2,7 @@ import datetime
 from datetime import timezone
 import yaml
 from pathlib import Path
+import os
 
 def saveConfig(fileName: str(), data: dict()) -> None:
 	formattedPath = Path("config/" + fileName) #Converts file path to OOP path
@@ -25,8 +26,24 @@ def loadConfig(fileName: str()) -> dict():
 		
 	return data
 	
-def timeMod(zone: str()) -> int():
-	zones = {"EST": -5,"EDT": -4,"CST": -6,"CDT": -5,"MST": -7,"MDT": -6,"PST": -8,"PDT": -7}
-	return zones[zone.upper()]
+def saveCache(fileName: str(), dirName: str(), data: dict()) -> None:
+	if dirName not in os.listdir("cache"):
+		os.mkdir("cache." + dirName)
+		
+	with open("cache." + dirName, "w") as file:
+		yaml.dump(data,file)
+		print("Wrote cache file " + fileName + " [saveCache]")
+		
+def loadCache(fileName: str(), dirName: str()) -> dict():
+	data = dict() #variable used to store config from file
+	path = "cache." + dirName + "." + fileName
 	
+	if path.exists():
+		with open(path, "r") as file:
+			data = yaml.safe_load(file)
+			print("Data loaded from " + path + " [loadCache]")
+	else:
+		print("Error: Data was not able to be loaded from " + path + " [loadCache]")
+		
+	return data
 	
