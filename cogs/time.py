@@ -10,7 +10,7 @@ from datetime import timezone
 class time(commands.Cog):
 	def __init__(self, bot):
 		self.bot = bot
-		
+	'''		DEPRECIATED CODE
 	def getTime(self, h: int(), m: int(), s: int()) -> dict():
 		config = helpers.loadConfig("time")
 		zone = config["timezone"]
@@ -60,6 +60,7 @@ class time(commands.Cog):
 		time["dayHalf"] = dayHalf
 		
 		return time
+	
 	@commands.command(name="tc", description="alias to timeconf")
 	async def tc(self, ctx):
 		await self.timeconf(ctx)
@@ -92,6 +93,7 @@ class time(commands.Cog):
 				await ctx.send(data)
 		else:
 			await ctx.send("Invalid options, try: !timeconf help") 
+	'''
 		
 	@commands.command(name="h", description="sends instructional message")
 	async def h(self, ctx):
@@ -110,8 +112,8 @@ class time(commands.Cog):
 		
 	@commands.command(name="alert", description="creates an alert")
 	async def alert(self, ctx):
-		config = helpers.loadConfig("time")
-		zone = config["timezone"].upper()
+		#config = helpers.loadConfig("time")
+		#zone = config["timezone"].upper()
 	
 		syntaxError = bool(False)
 		gotTime = bool() #flag used to denote the finding of a time value
@@ -171,57 +173,46 @@ class time(commands.Cog):
 				
 				if token.upper() == "PM":
 					dayHalf = "PM"
-					
+		
+		#Generate current time object
+		now = datetime.datetime.now()
+		
+		
 
 		if shortFormat == True:
 			if hourOP == True:
 				hour = singleTimeValue
+				future = now + datetime.timedelta(hours=hour)
 			elif minOP == True:
 				minute = singleTimeValue
+				future = now + datetime.timedelta(minutes=minute)
 			elif secOP == True:
 				second = singleTimeValue
+				future = now + datetime.timedelta(seconds=second)
 			else:
 				print("ERROR: single time value used without value option [remind::alert]")
 				
-			futureTime = self.getTime(hour, minute, second)
+			unix_timestamp = int(future.timestamp())
+			discord_timestamp = f"<t:{unix_timestamp}:f>"
+			
 		elif longFormat == True:
 			pass #WORK IN PROGRESS
 			#futureTime = self.diffTime(hour,minute,second,dayHalf)
 		else:
 			print("ERROR: format option was not set [remind::alert]")
 			syntaxError = True
-			
-		print("Time sent to getTime: " + str(hour) + " " + str(minute) + " " + str(second) + " [remind::alert]")
 		
 		#Construct data message for meeting mode
 		#Meeting message is used in else clause as it is the default case
 		if delay == True and meeting != True:
-			data = data + "@" + role + " Oops, there has been a technical delay, our meeting will be starting "
+			data = data + "@" + role + " Oops, there has been a technical delay, our meeting will be starting at "
 		else:
-			data = data + "@" + role + " Meeting will be starting "	
+			data = data + "@" + role + " Meeting will be starting at "	
 		
-		if shortFormat == True:
-			if hour != 0:
-				data = data + "in " + str(hour) + " Hours at "
-			if minute != 0:
-				data = data + "in " + str(minute) + " Minutes at "
-			#WORK IN PROGRESS: TEMPORARY
-			if futureTime["hour"] <= 9:
-				data = data + "0" + str(futureTime["hour"]) + ":"
-			else:
-				data = data + str(futureTime["hour"]) + ":"
-			if futureTime["minute"] <= 9:
-				data = data + "0" + str(futureTime["minute"]) + " "
-			else:
-				data = data + str(futureTime["minute"]) + " "
-			data = data + str(futureTime["dayHalf"]) + " " + zone
-			
-		elif longFormat == True:
-			data = data + "at " + str(hour) + ":" + str(minute) + " " + str(dayHalf) + " " + zone
-			#WORK IN PROGRESS
-			#data = data + str(futureTime["hour"]) + ":" + str(futureTime["minute"]) + " " + str(futureTime["dayHalf"])
+		#Add timestamp to data message
+		data = data + discord_timestamp
 
-	
+		#check for syntax errors before sending message
 		if syntaxError == False and gotTime == True:
 			await ctx.send(data)
 		elif syntaxError == True:
