@@ -2,3 +2,5 @@
 .bot.yaml
 #Ignore virtual environment for python
 .venv
+#ignore temp folder
+temp

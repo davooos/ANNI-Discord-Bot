@@ -4,9 +4,6 @@ from discord.ext import commands
 import datetime
 from datetime import timezone
 
-
-
-
 class time(commands.Cog):
 	def __init__(self, bot):
 		self.bot = bot
