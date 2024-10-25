@@ -47,3 +47,14 @@ def loadCache(fileName: str(), dirName: str()) -> dict():
 		
 	return data
 	
+def getTimeStamp(value: datetime = None):
+	#Generate current time object
+	now = datetime.datetime.now()
+	if value == None:
+		unix_timestamp = int(now.timestamp())
+	else:
+		unix_timestamp = int(value.timestamp())
+
+	discord_timestamp = f"<t:{unix_timestamp}:f>"
+
+	return discord_timestamp
