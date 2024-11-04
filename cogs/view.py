@@ -70,21 +70,23 @@ class view(commands.Cog):
 				stop = True #set stop flag so output will not be sent to user.
 
 
-		if len(tokens) < 2 or tokens[1].lower() in helpTokens:
-			data = "Enter !memberconfig member field data"
+		if len(tokens) <= 2:
+			if tokens[1].lower() in helpTokens:
+				data = "Enter !memberconfig member field data"
+
 		elif len(tokens) > 2:
 			if tokens[1].isdigit():
 				for i,member in enumerate(log.keys()):
 					if int(tokens[1]) == int(member) or int(tokens[1]) == i:
 						memberid = member
 						memberFound = True
-						print("Member found in config as " + str(member) + " [view::memberConfig]")
+						print("[v] -> Member found in config as " + str(member) + " [view::memberConfig]")
 			else:
 				for member in log:
 					if tokens[1].lower() == log[member]["Name"].lower():
 						memberid = member
 						memberFound = True
-						print("Member found in config as " + str(member) + " [view::memberConfig]")
+						print("[v] -> Member found in config as " + str(member) + " [view::memberConfig]")
 			
 			if len(tokens) > 3 and memberFound == True:
 				keyList = list(log.keys()) #convert dictionary view to list of keys
@@ -112,12 +114,19 @@ class view(commands.Cog):
 					print("Error: invalid value given for intern status [view::memberconfig]")
 					stop = True
 			elif field == "StartDate" or field == "EndDate":
-				cur_date = datetime.now(timezone.utc)
+				cur_date = datetime.datetime.now(timezone.utc)
 				if newValue in dateTokens:	
 					newValue = cur_date
+				elif "/" in newValue or "-" in newValue:
+					newValue = helpers.convertTime(newValue)
 				else:
 					print("Error: invalid token for start date argument [view::memberconfig]")
 					stop = True
+			elif field == "Birthday":
+				if newValue in dateTokens:
+					newValue = datetime.datetime.now(timezone.utc)
+				elif "/" in newValue or "-" in newValue:
+					newValue = helpers.convertTime(newValue)
 			elif field == "Name":
 				newValue = newValue #no change as name stays an unmanipulated string
 		else:
@@ -157,9 +166,13 @@ class view(commands.Cog):
 		
 	@commands.command(name="view", description="View server member data")
 	async def view(self, ctx) -> None:
+		tokens = ctx.message.content.split()
 		data = str()
-		#guild = ctx.guild
-		#members = guild.members
+		memberid = int()
+		memberFound = bool(False)
+		fullList = bool(False)
+		keyList = list()
+
 
 		#get log from yaml config file
 		log = helpers.loadConfig("members")
@@ -168,12 +181,37 @@ class view(commands.Cog):
 			log = helpers.loadConfig("members")
 			if bool(log) == False:
 				stop = True #set stop flag so output will not be sent to user.
-		
-		for i,member in enumerate(log):
-			data = data + "**Member " + str(i) + ":**\n"
-			for field in log[member].keys():
-				data = data + "  " + str(field) + "  :  " + str(log[member][field]) + "\n"
-			data = data + "\n\n"
+
+		if len(tokens) == 2:
+			if tokens[1].isdigit():
+				keyList = list(log.keys())
+				if len(keyList) >= int(tokens[1]):
+					memberid = keyList[int(tokens[1])]
+					memberFound = True
+			else:
+				for member in log:
+					if log[member]["Name"].lower() == tokens[1].lower():
+						memberid = member
+						memberFound = True
+		elif len(tokens) == 1:
+			fullList = True
+		else:
+			print("Error: Invalid arguments given [view::view]")
+			
+
+		if fullList == True and memberFound == False:
+			for i,member in enumerate(log):
+				data = data + "**Member " + str(i) + ":**\n"
+				for field in log[member].keys():
+					data = data + "  " + str(field) + "  :  " + str(log[member][field]) + "\n"
+				data = data + "\n\n"
+		elif fullList == False and memberFound == True:
+			data = data + "**Member " + str(tokens[1]) + ":**\n"
+			for field in log[memberid].keys():
+				data = data + "  " + str(field) + "  :  " + str(log[memberid][field]) + "\n"
+		else:
+			data = "Sorry, I am not able to fullfill your command, use the !how command for help."
+			
 		
 		await ctx.send(data)
 		

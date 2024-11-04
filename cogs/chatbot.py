@@ -11,6 +11,21 @@ class chatbot(commands.Cog):
 
 	@commands.command(name="ask", description="ask the bot a question")
 	async def ask(self, ctx) -> None:
+		authorStats = dict()
+
+		#get log from yaml config file
+		log = helpers.loadConfig("members")
+		if bool(log) == False: #check to see if the log is empty -- meaning it could not be loaded
+			await self.createLog(ctx) #create new log
+			log = helpers.loadConfig("members")
+			if bool(log) == False:
+				stop = True #set stop flag so output will not be sent to user.
+
+		for member in log:
+			if member == ctx.author.id:
+				authorStats = log[member]
+
+		#Token bank to decifer commands
 		getQuestions = ["all", "print", "show", "questions", "quest", "help"] #command tokens for showing quesitons
 		positions = ["moderator","graphic designer", "animator", "software engineer", "communications"]
 		leaders = ["chief", "officer", "manager"]
@@ -27,18 +42,16 @@ class chatbot(commands.Cog):
 		elif len(tokens) < 3:
 			if tokens[1].isdigit() == True:
 				if tokens[1] == '1':
-					period = timedelta(weeks=16)
-					join_date = ctx.author.joined_at
+					join_date = authorStats["StartDate"]
 					cur_date = datetime.now(timezone.utc)
-					end_date = join_date + period #overload operator for datetime that returns timedelta obj
-					time_till_end = end_date - cur_date
+					end_date = authorStats["EndDate"]
 					joinStamp = helpers.getTimeStamp(join_date)
 					endStamp = helpers.getTimeStamp(end_date)
-					if time_till_end.seconds > 0:
+					if cur_date < end_date:
 						data = data + "You joined " + str(joinStamp) + " and your intership ends " + str(endStamp) + "." + "\n"
 						data = data + "You have " + str(int(time_till_end.days / 7)) + " weeks and " + str(time_till_end.days % 7) + " days left."
 					else:
-						data = data + "Your internship ended " + str(end_date)
+						data = data + "Your internship ended " + str(endStamp)
 
 				elif tokens[1] == '2':
 					teamfound = bool(False)
