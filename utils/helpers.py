@@ -58,3 +58,23 @@ def getTimeStamp(value: datetime = None):
 	discord_timestamp = f"<t:{unix_timestamp}:f>"
 
 	return discord_timestamp
+
+def convertTime(date: str() = None) -> datetime:
+	fields = list()
+	data = None
+
+	if "/" in date:
+		fields = date.split("/")
+	elif "-" in date:
+		fields = date.split("-")
+	else:
+		print("Error: Invalid time formate given [helpers::convertTime]")
+
+	try:
+		#takes year month day as args
+		data = datetime.datetime(int(fields[0]), int(fields[1]), int(fields[2]), tzinfo=timezone.utc)
+	except:
+		print("Error: Unable to create datetime object [helpers::convertTime]")
+
+	return data
+

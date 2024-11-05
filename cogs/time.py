@@ -19,8 +19,8 @@ class time(commands.Cog):
 		data = data + "		!a 7:45 AM\n"
 		await ctx.send(data)
 	
-	@commands.command(name="a", description="alias to alert command")
-	async def a(self, ctx):
+	@commands.command(name="al", description="alias to alert command")
+	async def al(self, ctx):
 		await self.alert(ctx)
 		
 	@commands.command(name="alert", description="creates an alert")
