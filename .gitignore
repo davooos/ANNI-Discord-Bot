@@ -4,3 +4,6 @@
 .venv
 #ignore temp folder
 temp
+#ignore and config folders
+cache/wordCache/*
+config/*
