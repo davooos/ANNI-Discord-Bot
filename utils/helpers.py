@@ -27,23 +27,25 @@ def loadConfig(fileName: str()) -> dict():
 	return data
 	
 def saveCache(fileName: str(), dirName: str(), data: dict()) -> None:
+	formattedPath = Path("cache/" + dirName + "/" + fileName)
+	cachePath = Path("cache/" + dirName)
 	if dirName not in os.listdir("cache"):
-		os.mkdir("cache." + dirName)
+		os.mkdir(cachePath)
 		
-	with open("cache." + dirName, "w") as file:
+	with open(formattedPath, "w") as file:
 		yaml.dump(data,file)
 		print("Wrote cache file " + fileName + " [saveCache]")
 		
 def loadCache(fileName: str(), dirName: str()) -> dict():
 	data = dict() #variable used to store config from file
-	path = "cache." + dirName + "." + fileName
+	path = Path("cache/" + dirName + "/" + fileName)
 	
 	if path.exists():
 		with open(path, "r") as file:
 			data = yaml.safe_load(file)
-			print("Data loaded from " + path + " [loadCache]")
+			print("Data loaded from " + str(path) + " [loadCache]")
 	else:
-		print("Error: Data was not able to be loaded from " + path + " [loadCache]")
+		print("Error: Data was not able to be loaded from " + str(path) + " [loadCache]")
 		
 	return data
 	
