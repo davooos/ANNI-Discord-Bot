@@ -31,7 +31,7 @@ class view(commands.Cog):
 				log[member.id] = memData
 				memData = dict()
 
-		helpers.saveConfig("members", log)
+		helpers.saveCache("members","MemberData", log)
 
 	@commands.command()
 	async def memc(self, ctx):
@@ -62,7 +62,7 @@ class view(commands.Cog):
 		stop = bool(False)
 
 		#get log from yaml config file
-		log = helpers.loadConfig("members")
+		log = helpers.loadCache("members","MemberData")
 		if bool(log) == False: #check to see if the log is empty -- meaning it could not be loaded
 			await self.createLog(ctx) #create new log
 			log = helpers.loadConfig("members")
@@ -175,10 +175,10 @@ class view(commands.Cog):
 
 
 		#get log from yaml config file
-		log = helpers.loadConfig("members")
+		log = helpers.loadCache("members","MemberData")
 		if bool(log) == False: #check to see if the log is empty -- meaning it could not be loaded
 			await self.createLog(ctx) #create new log
-			log = helpers.loadConfig("members")
+			log = helpers.loadCache("members","MemberData")
 			if bool(log) == False:
 				stop = True #set stop flag so output will not be sent to user.
 
