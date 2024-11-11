@@ -79,4 +79,12 @@ def convertTime(date: str() = None) -> datetime:
 		print("Error: Unable to create datetime object [helpers::convertTime]")
 
 	return data
-
+	
+def checkAuth(author) -> bool():
+	authorizedRoles = ["moderator", "team leader"] #CHECK LATER WHEN MORE ROLES ARE ADDED
+			
+	for role in author.roles:
+		if str(role).lower() in authorizedRoles:
+			return True
+			
+	return False
