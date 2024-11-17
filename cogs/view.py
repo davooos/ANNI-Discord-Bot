@@ -17,9 +17,21 @@ class view(commands.Cog):
 
 		for member in members:
 			if member.bot == False:
+			    #beginning of block contains for loops that search individual member roles to set default variables.
+			    for role in member.roles:
+			        #check for roles regarding position in organization
+			        if str(role).lower() == "intern" or str(role).lower() == "associate" or str(role).lower() == "volunteer":
+			            	memData["Position"] = str(role).lower()
+			            	if str(role).lower() == "intern":
+			            		period = timedelta(weeks=16)    #time period of internship
+						    join_date = member.joined_at    #date that member joined the server
+						    end_date = join_date + period #overload operator for datetime that returns timedelta obj
+						    memData["EndDate"] = end_date
+			            else:
+			            	    memData["Position"] = None  #default if value is not recognized
+			        	
 				memData["ID"] = member.id
 				memData["Name"] = member.global_name
-				memData["Position"] = None
 				memData["StartDate"] = member.joined_at
 				memData["EndDate"] = None
 				memData["Birthday"] = None
@@ -160,7 +172,7 @@ class view(commands.Cog):
 				log[memberid][field] = newValue #update log if parameters are valid
 				if setDefEndDate == True:
 					period = timedelta(weeks=16)
-					join_date = ctx.author.joined_at
+					join_date = log[memberid]["startDate"]
 					end_date = join_date + period #overload operator for datetime that returns timedelta obj
 					log[memberid]["EndDate"] = end_date
 					
