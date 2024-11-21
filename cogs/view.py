@@ -30,18 +30,18 @@ class view(commands.Cog):
 				memData["Team"] = None
 				memData["Team Leader"] = None
 			    #beginning of block contains for loops that search individual member roles to set default variables.
-			    for role in member.roles:
-			        #check for roles regarding position in organization
-			        if str(role).lower() == "intern" or str(role).lower() == "associate" or str(role).lower() == "volunteer":
-			            	memData["Position"] = str(role).lower()
-			            	if str(role).lower() == "intern":
-                            period = timedelta(weeks=16)    #time period of internship
-                            join_date = member.joined_at    #date that member joined the server
-                            end_date = join_date + period #overload operator for datetime that returns timedelta obj
-                            memData["EndDate"] = end_date
-			            else:
-			            	    memData["Position"] = None  #default if value is not recognized
-			        if "team" in str(role).lower():
+				for role in member.roles:
+				#check for roles regarding position in organization
+					if str(role).lower() == "intern" or str(role).lower() == "associate" or str(role).lower() == "volunteer":
+						memData["Position"] = str(role).lower()
+						if str(role).lower() == "intern":
+							period = timedelta(weeks=16)    #time period of internship
+							join_date = member.joined_at    #date that member joined the server
+							end_date = join_date + period #overload operator for datetime that returns timedelta obj
+							memData["EndDate"] = end_date
+						else:
+							memData["Position"] = None  #default if value is not recognized
+					if "team" in str(role).lower():
 						teamList = str(role).lower().split()
 						memData["Team"] = teamList[1] #Team name without the preceding 'team'
 				
@@ -56,9 +56,9 @@ class view(commands.Cog):
 						
 						if isLeader == True and inTeam == True:
 							memData["Team Leader"] = m.global_name
-			            	    break;
-			            	
-			            	isLeader = False
+							break;
+							
+						isLeader = False
 						inTeam = False
 			    
 			    #Add member dictionary to log dictionary
