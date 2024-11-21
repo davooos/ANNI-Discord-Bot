@@ -34,7 +34,8 @@ class chatbot(commands.Cog):
 			leaders = ["chief", "officer", "manager"]
 			questions = ["When does my internship end?", "What team am I part of?", "Who are the moderators?", "Who are my team leaders?"]
 			data = str()
-			tokens = ctx.message.content.split()
+			stripped = ctx.message.content.replace("[","").replace("]","")
+			tokens = stripped.split()
 			
 			#command interpretation per token(word)
 			if len(tokens) < 2 or tokens[1] in getQuestions:

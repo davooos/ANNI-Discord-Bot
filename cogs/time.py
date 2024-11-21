@@ -49,7 +49,8 @@ class time(commands.Cog):
 		delay = bool(True) #sets message type to delayed meeting
 		
 		
-		tokens = ctx.message.content.split()
+		stripped = ctx.message.content.replace("[","").replace("]","")
+		tokens = stripped.split()
 		#parse tokens, setting flags or values declared above
 		if len(tokens) > 1:
 			for idx, token in enumerate(tokens):

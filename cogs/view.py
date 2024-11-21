@@ -14,30 +14,54 @@ class view(commands.Cog):
 		log = dict() #dictionary for members
 		memData = dict() #dictionary for individual member data
 		members = ctx.guild.members #THIS MAY BE ONLY FOR CACHED MEMBERS IN SERVER --- PLEASE CHECK LATER
+		leaderTokens = ["leader","chief","officer","manager"]
+		
+		#flag variables
+		isLeader = bool(False)
+		inTeam = bool(False)
 
 		for member in members:
 			if member.bot == False:
+				memData["ID"] = member.id
+				memData["Name"] = member.global_name
+				memData["StartDate"] = member.joined_at
+				memData["EndDate"] = None
+				memData["Birthday"] = None
+				memData["Team"] = None
+				memData["Team Leader"] = None
 			    #beginning of block contains for loops that search individual member roles to set default variables.
 			    for role in member.roles:
 			        #check for roles regarding position in organization
 			        if str(role).lower() == "intern" or str(role).lower() == "associate" or str(role).lower() == "volunteer":
 			            	memData["Position"] = str(role).lower()
 			            	if str(role).lower() == "intern":
-			            		period = timedelta(weeks=16)    #time period of internship
-						    join_date = member.joined_at    #date that member joined the server
-						    end_date = join_date + period #overload operator for datetime that returns timedelta obj
-						    memData["EndDate"] = end_date
+                            period = timedelta(weeks=16)    #time period of internship
+                            join_date = member.joined_at    #date that member joined the server
+                            end_date = join_date + period #overload operator for datetime that returns timedelta obj
+                            memData["EndDate"] = end_date
 			            else:
 			            	    memData["Position"] = None  #default if value is not recognized
-			        	
-				memData["ID"] = member.id
-				memData["Name"] = member.global_name
-				memData["StartDate"] = member.joined_at
-				memData["EndDate"] = None
-				memData["Birthday"] = None
-				memData["Citizen"] = None
-				memData["School"] = None
-
+			        if "team" in str(role).lower():
+						teamList = str(role).lower().split()
+						memData["Team"] = teamList[1] #Team name without the preceding 'team'
+				
+				#Block to find additional information based on above results
+				if memData["Team"] != None:	#If the member has been assigned a team role
+					for m in members:
+						for r in m.roles:
+							if r.lower() in leaderTokens:
+								isLeader = True
+							if memData["Team"].lower() in r.lower():
+								inTeam = True
+						
+						if isLeader == True and inTeam == True:
+							memData["Team Leader"] = m.global_name
+			            	    break;
+			            	
+			            	isLeader = False
+						inTeam = False
+			    
+			    #Add member dictionary to log dictionary
 				log[member.id] = memData #set memdata to an element in the log dict()
 				memData = dict() #reset memdata for next iteration in loop
 
@@ -57,7 +81,8 @@ class view(commands.Cog):
 		trueTokens = ["yes", "true", "sure", "positive", "correct", "go", "on"]
 		falseTokens = ["no", "false", "nope", "negative", "wrong", "stop", "off"]
 		#split message to tokens
-		tokens = ctx.message.content.split()
+		stripped = ctx.message.content.replace("[","").replace("]","")
+		tokens = stripped.split()
 		data = str()
 
 		#temp variables
@@ -190,7 +215,8 @@ class view(commands.Cog):
 
 	@commands.command(name="view", description="View server member data")
 	async def view(self, ctx) -> None:
-		tokens = ctx.message.content.split()
+		stripped = ctx.message.content.strip("[]")
+		tokens = stripped.split()
 		data = str()
 		memberid = int()
 		memberFound = bool(False)
