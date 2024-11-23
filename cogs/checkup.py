@@ -24,8 +24,9 @@ class checkup(commands.Cog):
 		stop = bool(False)
 		
 		for m in log:
-			if log[m]["Position"] == "intern" and log[m]["EndDate"] > log[m]["StartDate"]:
-				data = "Hey there, I hope your week has been going well! Don't forget to submit your weekly report to your team leader!\n"
+			if log[m]["Position"].lower() == "intern" and log[m]["EndDate"] > log[m]["StartDate"]:
+				data = "Hey there, I hope your week has been going well! "
+				data = data + "Don't forget to submit your weekly report to your team leader!\n"
 			if log[m]["Team Leader"] != None:
 				data = data + "Your team leader is " + log[m]["Team Leader"]
 				

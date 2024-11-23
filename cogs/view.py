@@ -39,8 +39,8 @@ class view(commands.Cog):
 							join_date = member.joined_at    #date that member joined the server
 							end_date = join_date + period #overload operator for datetime that returns timedelta obj
 							memData["EndDate"] = end_date
-						else:
-							memData["Position"] = None  #default if value is not recognized
+					else:
+						memData["Position"] = None  #default if value is not recognized
 					if "team" in str(role).lower():
 						teamList = str(role).lower().split()
 						memData["Team"] = teamList[1] #Team name without the preceding 'team'
@@ -197,7 +197,7 @@ class view(commands.Cog):
 				log[memberid][field] = newValue #update log if parameters are valid
 				if setDefEndDate == True:
 					period = timedelta(weeks=16)
-					join_date = log[memberid]["startDate"]
+					join_date = log[memberid]["StartDate"]
 					end_date = join_date + period #overload operator for datetime that returns timedelta obj
 					log[memberid]["EndDate"] = end_date
 					

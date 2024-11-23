@@ -5,7 +5,7 @@ import datetime
 from datetime import timezone
 from datetime import timedelta
 
-class view(commands.Cog):
+class help(commands.Cog):
 	def __init__(self, bot):
 		self.bot = bot
 		
@@ -105,4 +105,4 @@ class view(commands.Cog):
 	    
 	    
 async def setup(bot):
-	await bot.add_cog(view(bot))
+	await bot.add_cog(help(bot))
