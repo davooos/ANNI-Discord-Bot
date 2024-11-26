@@ -215,7 +215,7 @@ class view(commands.Cog):
 
 	@commands.command(name="view", description="View server member data")
 	async def view(self, ctx) -> None:
-		stripped = ctx.message.content.strip("[]")
+		stripped = ctx.message.content.replace("[","").replace("]","")
 		tokens = stripped.split()
 		data = str()
 		memberid = int()
