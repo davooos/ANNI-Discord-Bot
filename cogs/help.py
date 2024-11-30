@@ -21,7 +21,7 @@ class help(commands.Cog):
 	    basic = {
 	        1: "Make an alert that a meeting will be late",
 	        2: "Change/add my birthday to Anni"
-	        }
+	    }
 	    basicCommands = {
 	        1: "!alert minute [number of minutes]",
 	        2: "!memberconfig [Your Name] birthday [YYYY-MM-DD]"
@@ -30,11 +30,15 @@ class help(commands.Cog):
 	        3: "Change intern/associate start date",
 	        4: "Change intern/associate end date",
 	        5: "Change member position(role in company)",
-	        }
+	        6: "Schedule a day and time for Anni to remind interns to post updates (EST)",
+	        7: "Remove scheduled time for Anni to remind interns"
+	    }
 	    restrictedCommands = {
 	        3: "!memberconfig [Name or ID] startDate [YYYY-MM-DD]",
 	        4: "!memberconfig [Name or ID] endDate [YYYY-MM-DD]",
-	        5: "!memberconfig [Name or ID] position [intern/volunteer/alumni]"
+	        5: "!memberconfig [Name or ID] position [intern/volunteer/alumni]",
+	        6: "!schedule [day] [hour:minute]\n\nHour and minute using the 24-hour clock.",
+	        7: "!schedule remove [Job ID]\n\nGet Job ID from:\n!schedulecheck"
 	    }
 	    
 	    if authorize == False:

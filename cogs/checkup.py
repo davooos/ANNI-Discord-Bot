@@ -13,15 +13,14 @@ class checkup(commands.Cog):
 		self.scheduler = AsyncIOScheduler()
 		self.scheduled = bool(False)
 		self.taskNum = int(0)
+		self.context = None
 		
 		self.scheduler.start()
 		
-	def check(self, ctx) -> None:
+	async def check(self) -> None:
 		data = str()
-		members = ctx.guild.members
+		members = self.context.guild.members
 		log = helpers.loadCache("members","MemberData")
-		#check authorization
-		authorized = helpers.checkAuth(ctx.author)
 
 		#temp variables
 		memberid = int(0)
@@ -39,40 +38,46 @@ class checkup(commands.Cog):
 				
 			for member in members:
 				if member.id == m:
-					member.send(data)
+					await member.send(data)
 
 		
 	@commands.command(name = "runcheck", description = "runs the checkup reminder for interns")
 	async def runcheck(self, ctx) -> None:
+		self.context = ctx #set member to current ctx
 		data = str()
 		#check authorization
 		authorized = helpers.checkAuth(ctx.author)
 
 		if authorized == True:
 			data = "Sent progress update reminders to interns!"
-			self.check(ctx)
+			await self.check()
 		else:
 			data = "Sorry, you do not have authorization to run this command."
 			
 		await ctx.send(data)
-		
-	@commands.command(name = "schedulecheck", description = "Schedules intern reminders for a specific time and date")
-	async def schedulecheck(self, ctx) -> None:
+
+	@commands.command(name = "schedule", description = "Schedules intern reminders for a specific time and date")
+	async def schedule(self, ctx) -> None:
+		self.context = ctx #update member to current ctx
 		data = str()
 		error = str()
 		authorized = helpers.checkAuth(ctx.author) #check authorization
 		stripped = ctx.message.content.replace("[","").replace("]","") #remove brackets from command string
 		tokens = stripped.split() #split command string into list of words
+		jobs = self.scheduler.get_jobs()
 		
-		#constant variables
-		days = {"monday": "mon",
-			"teusday": "teu",
+		#constant keywords
+		days = {
+			"monday": "mon",
+			"tuesday": "tue",
 			"wednesday": "wed",
 			"thursday": "thu",
 			"friday": "fri",
 			"saturday": "sat",
 			"sunday": "sun"
 		}
+		remove = ["rm", "remove", "r"]
+		show = ["all", "show", "help", "list"]
 		
 		#temp variables
 		d = str() #day
@@ -81,62 +86,78 @@ class checkup(commands.Cog):
 		fields = list()
 		
 		#flag variables
-		stop = bool(False)
-		jobFail = bool(False)
+		mkschedule = bool(False)
+		removeSchedule = bool(False)
+		showAll = bool(False)
 		
 		if authorized == True:
-			if len(tokens) == 3:
+			if len(tokens) > 1:
 				if tokens[1].lower() in days:
 					d = days[tokens[1].lower()]
-				else:
-					stop = True
+					mkschedule = True
+				elif tokens[1].lower() in remove:
+					removeSchedule = True
+				elif tokens[1].lower() in show:
+					showAll = True
+			else:
+				showAll = True
 				
-				if ":" in tokens[2]:
+			if len(tokens) > 2 and showAll == False: #showall command would not be longer than 2 tokens
+				if ":" in tokens[2] and mkschedule == True:
 					timeFields = tokens[2].split(":")
 					if len(timeFields) == 2:
 						h = int(timeFields[0])
 						m = int(timeFields[1])
-					else:
-						stop = True
+						self.taskNum = self.taskNum + 1
+						try:
+							self.scheduler.add_job(self.check, 
+								CronTrigger(day_of_week = d, hour = h, minute = m, second = 0),
+								id = str(self.taskNum),
+								name = "Scheduled job for checkup.check",
+								replace_existing = True
+							)
+							data = "Done!"
+						except:
+							print("Error, unable to schedule task [checkup:schedulecheck]")
+							error = "Sorry, I was not able to schedule the task."
+							
+				elif tokens[2].isdigit() and removeSchedule == True:
+					try:
+						self.scheduler.remove_job(tokens[2])
+						data = "Done!"
+					except:
+						error = "Sorry, I was unable to remove this job."
+						print("Error, unable to remove job from scheduler [checkup::schedule]")
 				else:
-					stop = True
+					print("Error, Invalid or too many tokens [checkup::schedule]")
+					error = "Sorry, I was unable to interpret this command. Use !how for help."
 					
-			else:
-				stop = True
-				print("Error, Invalid number of tokens in command [checkup::schedulecheck]")
+			elif showAll == True:
+				for job in jobs:
+					data = data + f"Job ID: {job.id}\n"
+					data = data + f"Job Name: {job.name}\n"
+					data = data + f"Next Run Time: {job.next_run_time}\n"
+					data = data + f"Trigger: {job.trigger}\n"
+					data = data + "---\n"
+
+				if len(data) < 1:
+					data = "It looks like there are no jobs to view."
 				
+			else:
+				print("Error, Invalid or too many tokens [checkup::schedule]")
+				error = "Sorry, I was unable to interpret this command. Use !how for help."	
 		else:
-			stop = True
 			error = "Sorry, you do not have authorization to run this command."
 			
-		if stop == False:
-			self.taskNum = self.taskNum + 1
-			#try:
-			self.scheduler.add_job(checkup.check(self, ctx), 
-				CronTrigger(day_of_week = d, hour = h, minute = m, second = 0),
-				id = str(self.taskNum),
-				name = "Scheduled job for checkup.check",
-				replace_existing = True
-			)
-			#except:
-				#print("Error, unable to schedule task [checkup:schedulecheck]")
-				#jobFail = True
-			
-			if jobFail == True:
-				data = "Sorry, I was unable to schedule this command."
-			else:
-				data = "Done!"
-				
+		if len(data) > 1:
 			await ctx.send(data)
-		
 		else:
-			if len(error) < 1:
-				error = "Sorry, I was enable to process your command. Use the !how command for help."
-			
 			await ctx.send(error)
-				
 
 
+	@commands.command(name = "updatecheckup", description = "Update ctx member")
+	async def updatecheckup(self, ctx) -> None:
+		self.context = ctx
 
 
 async def setup(bot):
