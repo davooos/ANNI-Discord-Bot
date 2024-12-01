@@ -46,16 +46,20 @@ class chatbot(commands.Cog):
 			elif len(tokens) < 3:
 				if tokens[1].isdigit() == True:
 					if tokens[1] == '1':
-						join_date = authorStats["StartDate"]
-						cur_date = datetime.now(timezone.utc)
-						end_date = authorStats["EndDate"]
-						joinStamp = helpers.getTimeStamp(join_date)
-						endStamp = helpers.getTimeStamp(end_date)
-						if cur_date < end_date:
-							data = data + "You joined " + str(joinStamp) + " and your intership ends " + str(endStamp) + "." + "\n"
-							data = data + "You have " + str(int(time_till_end.days / 7)) + " weeks and " + str(time_till_end.days % 7) + " days left."
+						if authorStats["Position"].lower() == "intern":
+							join_date = authorStats["StartDate"]
+							cur_date = datetime.now(timezone.utc)
+							end_date = authorStats["EndDate"]
+							joinStamp = helpers.getTimeStamp(join_date)
+							endStamp = helpers.getTimeStamp(end_date)
+							time_till_end = end_date - cur_date
+							if cur_date < end_date:
+								data = data + "You joined " + str(joinStamp) + " and your intership ends " + str(endStamp) + "." + "\n"
+								data = data + "You have " + str(int(time_till_end.days / 7)) + " weeks and " + str(time_till_end.days % 7) + " days left."
+							else:
+								data = data + "Your internship ended " + str(endStamp)
 						else:
-							data = data + "Your internship ended " + str(endStamp)
+							data = "It appears that you do not have an end date as you are not an intern."
 
 					elif tokens[1] == '2':
 						teamfound = bool(False)
