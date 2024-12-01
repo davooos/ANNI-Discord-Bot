@@ -31,7 +31,7 @@ class chatbot(commands.Cog):
 			#Token bank to decifer commands
 			getQuestions = ["all", "print", "show", "questions", "quest", "help"] #command tokens for showing quesitons
 			positions = ["moderator","graphic designer", "animator", "software engineer", "communications"]
-			leaders = ["chief", "officer", "manager"]
+			leaders = ["chief", "officer", "manager", "leader"]
 			questions = ["When does my internship end?", "What team am I part of?", "Who are the moderators?", "Who are my team leaders?"]
 			data = str()
 			stripped = ctx.message.content.replace("[","").replace("]","")
@@ -78,7 +78,7 @@ class chatbot(commands.Cog):
 						for member in members:
 							for role in member.roles:
 								if "moderat" in role.name.lower():
-									data = date + member.global_name + "\n"
+									data = data + member.global_name + "\n"
 									modfound = True
 						if modfound == False:
 							data = "Sorry, I was unable to find the moderators."
@@ -89,8 +89,10 @@ class chatbot(commands.Cog):
 						data = "Your team leaders are: \n"
 
 						for role in ctx.author.roles:
-							if "team" in role.name.lower():
-								authorTeams.append(role.name.lower())
+							roleTokens = role.name.lower().split()
+							for r in roleTokens:
+								if r in leaders:
+									authorTeams.append(role.name.lower())
 
 						for member in ctx.guild.members:
 							for role in member.roles:
@@ -105,6 +107,13 @@ class chatbot(commands.Cog):
 					else:
 						print("Error: invalid question [chatbot::ask]")
 						data = "Sorry, that number does not match any of my questions."
+
+				else:
+					data = "Sorry, I was not able to interpret this command. Please use the !how command for help."
+					print("Error, invalid second argument used [chatbot::ask]")
+			else:
+				data = "Sorry, I was not able to interpret this command. Please use the !how command for help."
+				print("Error, too many or invalid arguments used [chatbot::ask]")
 						
 		#if stop is true		
 		else:
