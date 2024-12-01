@@ -13,6 +13,9 @@ intents = discord.Intents.all()
 #intents.messages = True
 #intents.guilds = True
 
+#Only respond to messages in a specific channel:
+#channel = discord.utils.get(ctx.guild.channels, name="channel name")
+
 bot = commands.Bot(command_prefix='!', intents=intents)
 
 
@@ -47,6 +50,12 @@ async def load_cogs() -> None:
 async def on_ready() -> None:
     print(f'Logged in as {bot.user.name} ({bot.user.id})')
     await load_cogs()
+
+@bot.before_invoke #run before any called command is executed
+async def check(ctx):
+	if not ctx.guild: #check to see if command was sent in a guild (server)
+		await ctx.send("Sorry, Anni must only be used from within the Adventure Ted Discord Server.")
+		raise commands.CheckFailure
 
 
 # get bot token

@@ -68,6 +68,15 @@ class view(commands.Cog):
 		helpers.saveCache("members","MemberData", log)
 
 	@commands.command()
+	async def writecache(self, ctx):
+		try:
+			await self.createLog(ctx)
+			await ctx.send("I created and saved cache of server members.")
+		except:
+			print("Error, unable to create log file [view::writecache]")
+			await ctx.send("Sorry, I was unable to write the cache file.")
+
+	@commands.command()
 	async def memc(self, ctx):
 		await self.memberconfig(ctx)
 
