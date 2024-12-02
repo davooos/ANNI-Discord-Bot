@@ -16,47 +16,52 @@ class view(commands.Cog):
 		members = ctx.guild.members #THIS MAY BE ONLY FOR CACHED MEMBERS IN SERVER --- PLEASE CHECK LATER
 		leaderTokens = ["leader","chief","officer","manager"]
 		
+		#keywords
+		internKeys = ["intern", "novice"]
+		volunteerKeys = ["volunteer", "associate"]
+
 		#flag variables
 		isLeader = bool(False)
 		inTeam = bool(False)
 
 		for member in members:
 			if member.bot == False:
-				memData["ID"] = member.id
-				memData["Name"] = member.global_name
-				memData["StartDate"] = member.joined_at
-				memData["EndDate"] = None
-				memData["Birthday"] = None
-				memData["Team"] = None
-				memData["Team Leader"] = None
+				memData["id"] = member.id
+				memData["name"] = member.global_name
+				memData["startdate"] = member.joined_at
+				memData["enddate"] = "na"
+				memData["birthday"] = "na"
+				memData["team"] = "na"
+				memData["team leader"] = "na"
 			    #beginning of block contains for loops that search individual member roles to set default variables.
 				for role in member.roles:
 				#check for roles regarding position in organization
-					if str(role).lower() == "intern" or str(role).lower() == "associate" or str(role).lower() == "volunteer":
-						memData["Position"] = str(role).lower()
-						if str(role).lower() == "intern":
-							period = timedelta(weeks=16)    #time period of internship
-							join_date = member.joined_at    #date that member joined the server
-							end_date = join_date + period #overload operator for datetime that returns timedelta obj
-							memData["EndDate"] = end_date
+					if str(role).lower() in internKeys:
+						memData["position"] = "intern"
+						period = timedelta(weeks=16)    #time period of internship
+						join_date = member.joined_at    #date that member joined the server
+						end_date = join_date + period #overload operator for datetime that returns timedelta obj
+						memData["enddate"] = end_date
+					elif str(role).lower() in volunteerKeys:
+						memData["position"] = "volunteer"
 					else:
-						memData["Position"] = None  #default if value is not recognized
+						memData["position"] = "na"  #default if value is not recognized
 					if "team" in str(role).lower():
 						teamList = str(role).lower().split()
-						memData["Team"] = teamList[1] #Team name without the preceding 'team'
+						memData["team"] = teamList[1] #Team name without the preceding 'team'
 				
 				#Block to find additional information based on above results
-				if memData["Team"] != None:	#If the member has been assigned a team role
+				if memData["team"] != "na":	#If the member has been assigned a team role
 					for m in members:
 						for r in m.roles:
-							if r.lower() in leaderTokens:
+							if str(r).lower() in leaderTokens:
 								isLeader = True
-							if memData["Team"].lower() in r.lower():
+							if memData["team"].lower() in str(r).lower():
 								inTeam = True
 						
 						if isLeader == True and inTeam == True:
-							memData["Team Leader"] = m.global_name
-							break;
+							memData["team leader"] = m.global_name
+							break
 							
 						isLeader = False
 						inTeam = False
@@ -67,7 +72,7 @@ class view(commands.Cog):
 
 		helpers.saveCache("members","MemberData", log)
 
-	@commands.command()
+	@commands.command(name="writecache", description="Save server member data.")
 	async def writecache(self, ctx):
 		try:
 			await self.createLog(ctx)
@@ -76,11 +81,11 @@ class view(commands.Cog):
 			print("Error, unable to create log file [view::writecache]")
 			await ctx.send("Sorry, I was unable to write the cache file.")
 
-	@commands.command()
+	@commands.command(name="memc", description="Alias to memberconfig command.")
 	async def memc(self, ctx):
 		await self.memberconfig(ctx)
 
-	@commands.command()
+	@commands.command(name="memberconfig", description="Alter member data saved in bot.")
 	async def memberconfig(self, ctx):
 		#list acceptable token forms in order to interpret commands
 		helpTokens = ["all", "print", "show", "questions", "quest", "help"]
@@ -222,12 +227,15 @@ class view(commands.Cog):
 			
 		await ctx.send(data) #send end message at end of function
 
-	@commands.command(name="view", description="View server member data")
+	@commands.command(name="view", description="View bot member data.")
 	async def view(self, ctx) -> None:
 		stripped = ctx.message.content.replace("[","").replace("]","")
 		tokens = stripped.split()
 		data = str()
 		memberid = int()
+		filterSearch = bool(False)
+		field = str()
+		searchWord = str()
 		memberFound = bool(False)
 		fullList = bool(False)
 		keyList = list()
@@ -242,9 +250,17 @@ class view(commands.Cog):
 				if bool(log) == False:
 					stop = True #set stop flag so output will not be sent to user.
 
-			if len(tokens) == 2:
+			#log variables
+			keyList = list(log.keys())
+
+			if len(tokens) == 3:
+				for i in log[keyList[0]].keys():
+					if tokens[1] == i:
+						field = str(tokens[1]).lower()
+						searchWord = tokens[2]
+						filterSearch = True
+			elif len(tokens) == 2:
 				if tokens[1].isdigit():
-					keyList = list(log.keys())
 					if len(keyList) >= int(tokens[1]):
 						memberid = keyList[int(tokens[1])]
 						memberFound = True
@@ -265,6 +281,17 @@ class view(commands.Cog):
 					for field in log[member].keys():
 						data = data + "  " + str(field) + "  :  " + str(log[member][field]) + "\n"
 					data = data + "\n\n"
+
+			elif filterSearch == True:
+				for i,member in enumerate(log):
+					if log[member][field] == searchWord:
+						data = data + "**Member " + str(i) + ":**\n"
+						for field in log[member].keys():
+							data = data + "  " + str(field) + "  :  " + str(log[member][field]) + "\n"
+						data = data + "\n\n"
+				if len(data) < 1:
+					data = "Sorry, it looks like there are no results for your search."
+
 			elif fullList == False and memberFound == True:
 				data = data + "**Member " + str(tokens[1]) + ":**\n"
 				for field in log[memberid].keys():
@@ -274,7 +301,10 @@ class view(commands.Cog):
 		else:
 			data = "Sorry, it appears that your role does not have access to this command."	
 		
-		await ctx.send(data)
+		if len(data) < 1:
+			await ctx.send("Sorry, something went wrong.")
+		else:
+			await ctx.send(data)
 		
 		
 async def setup(bot):

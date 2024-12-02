@@ -1,9 +1,9 @@
 339098753795489804:
-  Birthday: null
-  EndDate: 2024-12-05 16:29:09.565000+00:00
-  ID: 339098753795489804
-  Name: Nolan
-  Position: Volunteer
-  StartDate: 2024-08-15 16:29:09.565000+00:00
-  Team: null
-  Team Leader: null
+  birthday: na
+  enddate: na
+  id: 339098753795489804
+  name: Nolan
+  position: na
+  startdate: 2024-08-15 16:29:09.565000+00:00
+  team: leader
+  team leader: na

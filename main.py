@@ -55,7 +55,7 @@ async def on_ready() -> None:
 async def check(ctx):
 	if not ctx.guild: #check to see if command was sent in a guild (server)
 		await ctx.send("Sorry, Anni must only be used from within the Adventure Ted Discord Server.")
-		raise commands.CheckFailure
+		raise commands.CheckFailure #Raise error that stops command execution
 
 
 # get bot token

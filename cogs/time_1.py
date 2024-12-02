@@ -7,17 +7,6 @@ from datetime import timezone
 class time(commands.Cog):
 	def __init__(self, bot):
 		self.bot = bot
-		
-	@commands.command(name="h", description="sends instructional message")
-	async def h(self, ctx):
-		data = str()
-		data = data + "Command examples:\n"
-		data = data + "		!alert minute 5\n"
-		data = data + "Or short hand:\n"
-		data = data + "		!a m 5\n"
-		data = data + "Long format(Enter specific time)(AM and PM will default to current):\n"
-		data = data + "		!a 7:45 AM\n"
-		await ctx.send(data)
 	
 	@commands.command(name="al", description="alias to alert command")
 	async def al(self, ctx):
@@ -135,8 +124,8 @@ class time(commands.Cog):
 			await ctx.send("I did not detect that a time value was given. Command example: !alert min 5\nEnter !h for more help.")
 		else:
 			await ctx.send("I was unable to find a specified time or syntax is incorrect, command example: !alert min 5\nEnter !h for more help.")
-				
-			
+
+
 async def setup(bot):
 	await bot.add_cog(time(bot))
 
