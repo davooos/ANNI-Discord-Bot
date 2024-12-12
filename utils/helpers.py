@@ -90,21 +90,19 @@ def checkAuth(author) -> bool():
 			
 	return False
 
-'''
-def check(authreq = False):
+def auth():
 	def decorator(func):
 		@wraps(func)
 		def wrapper(ctx, *args, **kwargs):
 			#flag variables
 			authorized = None
 
-			if authreq == True:
-				authorizedRoles = ["moderator", "team leader", "leader", "admin"] #CHECK LATER WHEN MORE ROLES ARE ADDED
-				authorized = False
+			authorizedRoles = ["moderator", "team leader", "leader", "admin"] #CHECK LATER WHEN MORE ROLES ARE ADDED
+			authorized = False
 
-				for role in ctx.author.roles:
-					if str(role).lower() in authorizedRoles:
-						authorized = True
+			for role in ctx.author.roles:
+				if str(role).lower() in authorizedRoles:
+					authorized = True
 
 			#logic to decide if command can execute
 			if authorized is None or authorized == True:
@@ -115,4 +113,3 @@ def check(authreq = False):
 			
 		return wrapper
 	return decorator
-'''

@@ -85,221 +85,226 @@ class view(commands.Cog):
 	async def memc(self, ctx):
 		await self.memberconfig(ctx)
 
-	@commands.command(name="memberconfig", description="Alter member data saved in bot.")
+	@commands.command()
+	@helpers.auth()
 	async def memberconfig(self, ctx):
 		#list acceptable token forms in order to interpret commands
 		helpTokens = ["all", "print", "show", "questions", "quest", "help"]
 		internTokens = ["intern", "internship","in"]
 		volunteerTokens = ["vol", "volunteer", "worker", "employee"]
-		dateTokens = ["makedate", "date", "this", "thisdate", "now"]
 		trueTokens = ["yes", "true", "sure", "positive", "correct", "go", "on"]
 		falseTokens = ["no", "false", "nope", "negative", "wrong", "stop", "off"]
+		dateTokens = ["makedate", "date", "this", "thisdate", "now"]
+
+		#runtime list objects
+		allerrors = list()
+		memberArgs = list()
+		memberids = list()
+
+		#runtime flag variables
+		showHelp = bool(False)
+		validField = bool(False)
+
+		#runtime variables
+		newValue = None
+		field = None
+
 		#split message to tokens
 		stripped = ctx.message.content.replace("[","").replace("]","")
 		tokens = stripped.split()
 		data = str()
 
-		#temp variables
-		memberid = int()
-		memberName = str()
-		memberidx = int()
-		newValue = None
-		field = str()
-		keyList = list()
+		#get log from yaml config file
+		log = helpers.loadCache("members","MemberData")
+		if bool(log) == False: #check to see if the log is empty -- meaning it could not be loaded
+			await self.createLog(ctx) #create new log
+			log = helpers.loadConfig("members")
+			if bool(log) == False:
+				allerrors.append("Log file does not exist.")
+				print("Error, log file does not exist [view::memberconfig]")
 
-		#flag variables
-		memberFound = bool(False)
-		validField = bool(False)
-		stop = bool(False)
-		setDefEndDate = bool(False)
-		authorized = bool(False)
-		
-		#check authorization
-		authorized = helpers.checkAuth(ctx.author)
-		
-		if authorized == True:
-			#get log from yaml config file
-			log = helpers.loadCache("members","MemberData")
-			if bool(log) == False: #check to see if the log is empty -- meaning it could not be loaded
-				await self.createLog(ctx) #create new log
-				log = helpers.loadConfig("members")
-				if bool(log) == False:
-					stop = True #set stop flag so output will not be sent to user.
+		if len(tokens) == 1:    #show help message if no arguments given
+			showHelp = True
 
-			#if block for finding member id
-			if len(tokens) <= 2:
-				if tokens[1].lower() in helpTokens:
-					data = "Enter !memberconfig member field data"
+		elif len(tokens) == 2:  
+			if tokens[1].isdigit() and tokens[1].lower() in helpTokens: #show help message if help argument given
+				showHelp = True
 
-			elif len(tokens) > 2:
-				if tokens[1].isdigit():
+		elif len(tokens) == 4:  #contains command name/id(s) field newValue
+			if "," in tokens[1]:    #multiple members
+				memberArgs = tokens[1].split(",")
+			else:   #single member
+				memberArgs.append(tokens[1])
+
+			for mem in memberArgs:
+				if mem.isdigit(): #find members based on index or id
 					for i,member in enumerate(log.keys()):
-						if int(tokens[1]) == int(member) or int(tokens[1]) == i:
-							memberid = member
-							memberFound = True
-							print("[v] -> Member found in config as " + str(member) + " [view::memberConfig]")
-				else:
+						if int(mem) == int(member) or int(mem) == i:
+							memberids.append(member)
+				else: #find members based on name
 					for member in log:
-						if tokens[1].lower() == log[member]["Name"].lower():
-							memberid = member
-							memberFound = True
-							print("[v] -> Member found in config as " + str(member) + " [view::memberConfig]")
-				#if block for validating field argument
-				if len(tokens) > 3 and memberFound == True:
-					keyList = list(log.keys()) #convert dictionary view to list of keys
-					if len(keyList) > 0:
-						for f in log[keyList[0]].keys(): #iterate through member fields
-							if tokens[2].lower() == f.lower():
-								field = f #check if the given field argument is valid
-								validField = True
+						if mem.lower() == log[member]["Name"].lower():
+							memberids.append(member)
 
-						if validField == True:
-							if len(tokens) > 3:
-								newValue = tokens[3]
-				
+			keyList = list(log.keys()) #convert dictionary view to list of keys
+			if len(keyList) > 0:
+				for f in log[keyList[0]].keys(): #iterate through member fields
+					if tokens[2].lower() == f.lower():
+						field = f #check if the given field argument is valid
+						validField = True
+
+				if validField == True:	#check if the field to modify exists
+					newValue = tokens[3]
+
 			else:
-				print("Error: insufficient arguments given [view::memberconfig]")
+				allerrors.append("Log is empty.")
+				print("Error, log empty as well as keyList [view::memberconfig]")
 
-			print("[v] -> MEMBERFOUND: " + str(memberFound) + " , VALIDFIELD: " + str(validField) + " , NEWVALUE: " + str(newValue) + " [veiw::memberconfig]")
-			#if block to interpret field and make new data
-			if newValue is not None and validField == True and memberFound == True: #checks to see if a new value and valid field were given
-				if field == "Position":
+			#calculate change regarding the new value to be added. This ensures consistancy of values in log.
+			if newValue is not None and validField == True and len(memberids) > 0: #checks to see if a new value and valid field were given
+				if field.lower() == "position":
 					if newValue in internTokens:
-						newValue = "Intern"
-						setDefEndDate = True
+						newValue = "intern"
+						setEndDate = True
 					elif newValue in volunteerTokens:
-						newValue = "Volunteer"
+						newValue = "volunteer"
 					else:
 						print("Error: invalid value given for intern status [view::memberconfig]")
-						stop = True
-				elif field == "StartDate" or field == "EndDate":
+						allerrors.append("Unable to interpret newValue for intern status.")
+				elif field.lower() == "startdate" or field == "EndDate":
 					cur_date = datetime.datetime.now(timezone.utc)
-					if newValue in dateTokens:	
+					if newValue in dateTokens:
 						newValue = cur_date
 					elif "/" in newValue or "-" in newValue:
 						newValue = helpers.convertTime(newValue)
 					else:
 						print("Error: invalid token for start date argument [view::memberconfig]")
-						stop = True
-				elif field == "Birthday":
+						allerrors.append("Unable to interpret date argument.")
+				elif field.lower() == "birthday":
 					if newValue in dateTokens:
 						newValue = datetime.datetime.now(timezone.utc)
 					elif "/" in newValue or "-" in newValue:
 						newValue = helpers.convertTime(newValue)
 					else:
 						print("Error: invalid token for birthday argument [view::memberconfig]")
-						stop = True
-				elif field == "Name":
-					newValue = newValue #no change as name stays an unmanipulated string
-				elif field == "School":
-					newValue = newValue #no change as name stays an unmanipulated string
-				elif field == "Citizen":
+						allerrors.append("Unable to interpret birthday date argument.")
+				elif field.lower() == "citizen":
 					if newValue in trueTokens:
-						newValue = True
+						newValue = "true"
 					elif newValue in falseTokens:
-						newValue = False
+						newValue = "false"
 					else:
 						print("Error: invalid token for citizen argument [view::memberconfig]")
-						stop = True
+						allerrors.append("Unable to interpret new value token for citizenship.")
 			else:
 				stop = True 
 				print("Error: memberconfig command arguments are not valid [view::memberconfig]")
 				data = "Sorry, it looks like your command has some arguments that I do not recognize or cannot find, use the !how command for help."
 
-			if stop == False and len(tokens) > 2:
-				print("[v] -> MEMBER: " + str(memberid) + " FIELD: " + str(field) + "NEWVALUE: " + str(newValue) + " [view::memberconfig]")
-				log[memberid][field] = newValue #update log if parameters are valid
-				if setDefEndDate == True:
+		if len(allerrors) == 0: #no errors at this point so proceed
+			for m in memberids:
+				log[m][field] = newValue #update log if parameters are valid
+				if setEndDate == True: #intern field is being set which means enddate must be configured
 					period = timedelta(weeks=16)
-					join_date = log[memberid]["StartDate"]
+					join_date = log[m]["StartDate"]
 					end_date = join_date + period #overload operator for datetime that returns timedelta obj
-					log[memberid]["EndDate"] = end_date
-					
-				try:
-					helpers.saveCache("members", "MemberData", log) #save modified config file
-					print("Successfully saved config file [view::memberconfig]")
-					data = "I successfully updated the member data!"
-				except:
-					print("Error: could not save new config [view::memberconfig]")
-					data = "Sorry, I could not save this data change."
+					log[m]["EndDate"] = end_date
+				
+			try:	#save new member config to file
+				helpers.saveCache("members", "MemberData", log) #save modified config file
+				print("Successfully saved config file [view::memberconfig]")
+			except:
+				print("Error: could not save new config [view::memberconfig]")
+				allerrors.append("Unable to save configuration.")
+
+		if len(allerrors) == 0:
+			data = "I successfully updated my member data!"
 		else:
-			data = "Sorry, It appears that your role does not have access to this command."
-			
-		await ctx.send(data) #send end message at end of function
+			data = "Sorry, I was unable to interpret your command. Use !how for help.\n"
+			data = data + "Errors:\n"
+			for e in allerrors:
+				data = data + "[E]: " + e + "\n"
+
+		await ctx.send(data)    #send message created above to the discord chat the command was sent from
+
 
 	@commands.command(name="view", description="View bot member data.")
+	@helpers.auth()
 	async def view(self, ctx) -> None:
+		#convert bot command to token list
 		stripped = ctx.message.content.replace("[","").replace("]","")
 		tokens = stripped.split()
 		data = str()
-		memberid = int()
+
+		#runtime flag variables
 		filterSearch = bool(False)
-		field = str()
-		searchWord = str()
 		memberFound = bool(False)
 		fullList = bool(False)
+		
+		#runtime variables
+		memberid = int()
+		field = str()
+		searchWord = str()
 		keyList = list()
-		authorized = helpers.checkAuth(ctx.author) #check authorization
 
-		if authorized == True:
-			#get log from yaml config file
+
+		#get log from yaml config file
+		log = helpers.loadCache("members","MemberData")
+		if bool(log) == False: #check to see if the log is empty -- meaning it could not be loaded
+			await self.createLog(ctx) #create new log
 			log = helpers.loadCache("members","MemberData")
-			if bool(log) == False: #check to see if the log is empty -- meaning it could not be loaded
-				await self.createLog(ctx) #create new log
-				log = helpers.loadCache("members","MemberData")
-				if bool(log) == False:
-					stop = True #set stop flag so output will not be sent to user.
+			if bool(log) == False:
+				stop = True #set stop flag so output will not be sent to user.
 
-			#log variables
-			keyList = list(log.keys())
+		#log variables
+		keyList = list(log.keys())
 
-			if len(tokens) == 3:
-				for i in log[keyList[0]].keys():
-					if tokens[1] == i:
-						field = str(tokens[1]).lower()
-						searchWord = tokens[2]
-						filterSearch = True
-			elif len(tokens) == 2:
-				if tokens[1].isdigit():
-					if len(keyList) >= int(tokens[1]):
-						memberid = keyList[int(tokens[1])]
-						memberFound = True
-				else:
-					for member in log:
-						if log[member]["Name"].lower() == tokens[1].lower():
-							memberid = member
-							memberFound = True
-			elif len(tokens) == 1:
-				fullList = True
+		if len(tokens) == 3:
+			for i in log[keyList[0]].keys():
+				if tokens[1] == i:
+					field = str(tokens[1]).lower()
+					searchWord = tokens[2]
+					filterSearch = True
+		elif len(tokens) == 2:
+			if tokens[1].isdigit():
+				if len(keyList) >= int(tokens[1]):
+					memberid = keyList[int(tokens[1])]
+					memberFound = True
 			else:
-				print("Error: Invalid arguments given [view::view]")
-				
+				for member in log:
+					if log[member]["Name"].lower() == tokens[1].lower():
+						memberid = member
+						memberFound = True
+		elif len(tokens) == 1:
+			fullList = True
+		else:
+			print("Error: Invalid arguments given [view::view]")
+			
 
-			if fullList == True and memberFound == False:
-				for i,member in enumerate(log):
+		if fullList == True and memberFound == False:
+			for i,member in enumerate(log):
+				data = data + "**Member " + str(i) + ":**\n"
+				for field in log[member].keys():
+					data = data + "  " + str(field) + "  :  " + str(log[member][field]) + "\n"
+				data = data + "\n\n"
+
+		elif filterSearch == True:
+			for i,member in enumerate(log):
+				if log[member][field] == searchWord:
 					data = data + "**Member " + str(i) + ":**\n"
 					for field in log[member].keys():
 						data = data + "  " + str(field) + "  :  " + str(log[member][field]) + "\n"
 					data = data + "\n\n"
+			if len(data) < 1:
+				data = "Sorry, it looks like there are no results for your search."
 
-			elif filterSearch == True:
-				for i,member in enumerate(log):
-					if log[member][field] == searchWord:
-						data = data + "**Member " + str(i) + ":**\n"
-						for field in log[member].keys():
-							data = data + "  " + str(field) + "  :  " + str(log[member][field]) + "\n"
-						data = data + "\n\n"
-				if len(data) < 1:
-					data = "Sorry, it looks like there are no results for your search."
-
-			elif fullList == False and memberFound == True:
-				data = data + "**Member " + str(tokens[1]) + ":**\n"
-				for field in log[memberid].keys():
-					data = data + "  " + str(field) + "  :  " + str(log[memberid][field]) + "\n"
-			else:
-				data = "Sorry, I am not able to fullfill your command, use the !how command for help."
+		elif fullList == False and memberFound == True:
+			data = data + "**Member " + str(tokens[1]) + ":**\n"
+			for field in log[memberid].keys():
+				data = data + "  " + str(field) + "  :  " + str(log[memberid][field]) + "\n"
 		else:
-			data = "Sorry, it appears that your role does not have access to this command."	
+			data = "Sorry, I am not able to fullfill your command, use the !how command for help."
+
 		
 		if len(data) < 1:
 			await ctx.send("Sorry, something went wrong.")
