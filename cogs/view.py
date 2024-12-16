@@ -127,7 +127,7 @@ class view(commands.Cog):
 			showHelp = True
 
 		elif len(tokens) == 2:  
-			if tokens[1].isdigit() and tokens[1].lower() in helpTokens: #show help message if help argument given
+			if tokens[1].isdigit() == False and tokens[1].lower() in helpTokens: #show help message if help argument given
 				showHelp = True
 
 		elif len(tokens) == 4:  #contains command name/id(s) field newValue
@@ -197,11 +197,10 @@ class view(commands.Cog):
 						print("Error: invalid token for citizen argument [view::memberconfig]")
 						allerrors.append("Unable to interpret new value token for citizenship.")
 			else:
-				stop = True 
 				print("Error: memberconfig command arguments are not valid [view::memberconfig]")
 				data = "Sorry, it looks like your command has some arguments that I do not recognize or cannot find, use the !how command for help."
 
-		if len(allerrors) == 0: #no errors at this point so proceed
+		if len(allerrors) == 0 and showHelp == False: #no errors at this point so proceed
 			for m in memberids:
 				log[m][field] = newValue #update log if parameters are valid
 				if setEndDate == True: #intern field is being set which means enddate must be configured
@@ -217,8 +216,10 @@ class view(commands.Cog):
 				print("Error: could not save new config [view::memberconfig]")
 				allerrors.append("Unable to save configuration.")
 
-		if len(allerrors) == 0:
+		if len(allerrors) == 0 and showHelp == False:
 			data = "I successfully updated my member data!"
+		elif len(allerrors) == 0 and showHelp == True:
+			data = "SYNTAX: !memberconfig [name/id] [field] [new value]"
 		else:
 			data = "Sorry, I was unable to interpret your command. Use !how for help.\n"
 			data = data + "Errors:\n"
