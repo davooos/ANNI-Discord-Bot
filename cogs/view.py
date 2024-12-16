@@ -27,7 +27,7 @@ class view(commands.Cog):
 		for member in members:
 			if member.bot == False:
 				memData["id"] = member.id
-				memData["name"] = member.global_name
+				memData["name"] = str(member.global_name).lower()
 				memData["startdate"] = member.joined_at
 				memData["enddate"] = "na"
 				memData["birthday"] = "na"
@@ -46,7 +46,7 @@ class view(commands.Cog):
 						memData["position"] = "volunteer"
 					else:
 						memData["position"] = "na"  #default if value is not recognized
-					if "team" in str(role).lower():
+					if "team" in str(role).lower() and "leader" not in str(role).lower():
 						teamList = str(role).lower().split()
 						memData["team"] = teamList[1] #Team name without the preceding 'team'
 				
@@ -79,15 +79,19 @@ class view(commands.Cog):
 			await ctx.send("I created and saved cache of server members.")
 		except:
 			print("Error, unable to create log file [view::writecache]")
-			await ctx.send("Sorry, I was unable to write the cache file.")
+			await ctx.send("Sorry, I was unable to write the log file.")
 
 	@commands.command(name="memc", description="Alias to memberconfig command.")
 	async def memc(self, ctx):
 		await self.memberconfig(ctx)
 
 	@commands.command()
-	@helpers.auth()
 	async def memberconfig(self, ctx):
+		#check if member accessing function is an admin
+		if helpers.checkAuth(ctx.author) == False:
+			ctx.send("Sorry, you do not have authorization to use this command.")
+			return #exit function
+
 		#list acceptable token forms in order to interpret commands
 		helpTokens = ["all", "print", "show", "questions", "quest", "help"]
 		internTokens = ["intern", "internship","in"]
@@ -230,20 +234,24 @@ class view(commands.Cog):
 
 
 	@commands.command(name="view", description="View bot member data.")
-	@helpers.auth()
 	async def view(self, ctx) -> None:
+		#check if member accessing function is an admin
+		if helpers.checkAuth(ctx.author) == False:
+			await ctx.send("Sorry, you do not have authorization to use this command.")
+			return #exit function
+
 		#convert bot command to token list
 		stripped = ctx.message.content.replace("[","").replace("]","")
 		tokens = stripped.split()
 		data = str()
+		errors = list()
 
 		#runtime flag variables
 		filterSearch = bool(False)
-		memberFound = bool(False)
-		fullList = bool(False)
+		allMembers = bool(False)
+		viewFields = bool(False)
 		
 		#runtime variables
-		memberid = int()
 		field = str()
 		searchWord = str()
 		keyList = list()
@@ -255,60 +263,71 @@ class view(commands.Cog):
 			await self.createLog(ctx) #create new log
 			log = helpers.loadCache("members","MemberData")
 			if bool(log) == False:
-				stop = True #set stop flag so output will not be sent to user.
+				errors.append("Unable to load members from log.")
+
 
 		#log variables
 		keyList = list(log.keys())
+		fields = list(log[keyList[0]].keys())
+
 
 		if len(tokens) == 3:
-			for i in log[keyList[0]].keys():
+			for i in fields:
 				if tokens[1] == i:
 					field = str(tokens[1]).lower()
-					searchWord = tokens[2]
+					if tokens[2].isdigit():
+						searchWord = tokens[2]
+					else:
+						searchWord = tokens[2].lower()
 					filterSearch = True
+
 		elif len(tokens) == 2:
-			if tokens[1].isdigit():
-				if len(keyList) >= int(tokens[1]):
-					memberid = keyList[int(tokens[1])]
-					memberFound = True
+			if tokens[1] == "all":
+				allMembers = True
+			elif tokens[1] == "fields" or tokens[1] == "help":
+				viewFields = True
 			else:
-				for member in log:
-					if log[member]["Name"].lower() == tokens[1].lower():
-						memberid = member
-						memberFound = True
-		elif len(tokens) == 1:
-			fullList = True
+				errors.append("Unknown command option used.")
+				print("Error, invalid option used with view [view::view]")
+
 		else:
+			errors.append("Invalid arguments or improper arguments used.")
 			print("Error: Invalid arguments given [view::view]")
 			
 
-		if fullList == True and memberFound == False:
+		if allMembers == True: #create a list of all data in log
 			for i,member in enumerate(log):
 				data = data + "**Member " + str(i) + ":**\n"
 				for field in log[member].keys():
 					data = data + "  " + str(field) + "  :  " + str(log[member][field]) + "\n"
 				data = data + "\n\n"
 
-		elif filterSearch == True:
+		elif filterSearch == True: #create a list of data containing searched fields
 			for i,member in enumerate(log):
-				if log[member][field] == searchWord:
+				if str(log[member][field]) == str(searchWord):
 					data = data + "**Member " + str(i) + ":**\n"
 					for field in log[member].keys():
 						data = data + "  " + str(field) + "  :  " + str(log[member][field]) + "\n"
 					data = data + "\n\n"
 			if len(data) < 1:
-				data = "Sorry, it looks like there are no results for your search."
+				errors.append("There are no results matching this search.")
 
-		elif fullList == False and memberFound == True:
-			data = data + "**Member " + str(tokens[1]) + ":**\n"
-			for field in log[memberid].keys():
-				data = data + "  " + str(field) + "  :  " + str(log[memberid][field]) + "\n"
+		elif viewFields == True:
+			data = "**Search fields:**\n"
+			for f in fields:
+				data = data + "- " + f + "\n"
+			data = data + "\nEnter !view [field] [search value]"
+
 		else:
-			data = "Sorry, I am not able to fullfill your command, use the !how command for help."
+			errors.append("Unable to interpret command arguments.")
 
 		
-		if len(data) < 1:
-			await ctx.send("Sorry, something went wrong.")
+		if len(data) < 1 or len(errors) > 0:
+			data = "Sorry, I am not able to fullfill your command, use the !how command for help.\n"
+			data = data + "Errors: \n"
+			for e in errors:
+				data = data + "[E] " + e + "\n"
+			await ctx.send(data)
 		else:
 			await ctx.send(data)
 		

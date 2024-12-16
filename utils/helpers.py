@@ -89,27 +89,3 @@ def checkAuth(author) -> bool():
 			return True
 			
 	return False
-
-def auth():
-	def decorator(func):
-		@wraps(func)
-		def wrapper(ctx, *args, **kwargs):
-			#flag variables
-			authorized = None
-
-			authorizedRoles = ["moderator", "team leader", "leader", "admin"] #CHECK LATER WHEN MORE ROLES ARE ADDED
-			authorized = False
-
-			for role in ctx.author.roles:
-				if str(role).lower() in authorizedRoles:
-					authorized = True
-
-			#logic to decide if command can execute
-			if authorized is None or authorized == True:
-				return await func(ctx, *args, **kwargs)
-			else:
-				ctx.send("Sorry, It appears you do not have the proper roles to use this command.")
-				return
-			
-		return wrapper
-	return decorator

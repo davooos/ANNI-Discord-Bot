@@ -20,56 +20,51 @@ class help(commands.Cog):
 
 		#options for display
 		basic = {
-			1: "Make an alert that a meeting will be late",
-			2: "Change/add my birthday to Anni",
-			3: "Ask Anni a question about the organization or job"
-		}
-		basicCommands = {
-			1: "!alert minute [number of minutes]",
-			2: "!memberconfig [Your Name] birthday [YYYY-MM-DD]",
-			3: "!ask"
+			"Make an alert that a meeting will be late" : "!alert minute [number of minutes]",
+			"Change/add my birthday to Anni" : "!memberconfig [Your Name] birthday [YYYY-MM-DD]",
+			"Ask Anni a question about the organization or job" : "!ask"
 		}
 		restricted = {
-			4: "Change intern/associate start date",
-			5: "Change intern/associate end date",
-			6: "Change member position(role in company)",
-			7: "Schedule a day and time for Anni to remind interns to post updates (EST)",
-			8: "Remove scheduled time for Anni to remind interns"
-		}
-		restrictedCommands = {
-			4: "!memberconfig [Name or ID] startDate [YYYY-MM-DD]",
-			5: "!memberconfig [Name or ID] endDate [YYYY-MM-DD]",
-			6: "!memberconfig [Name or ID] position [intern/volunteer/alumni]",
-			7: "!schedule [day] [hour:minute]\n\nHour and minute using the 24-hour clock.",
-			8: "!schedule remove [Job ID]\n\nGet Job ID from:\n!schedulecheck"
+			"Change intern/associate start date" : "!memberconfig [Name or ID] startDate [YYYY-MM-DD]",
+			"Change intern/associate end date" : "!memberconfig [Name or ID] endDate [YYYY-MM-DD]",
+			"Change member position(role in company)" : "!memberconfig [Name or ID] position [intern/volunteer/alumni]",
+			"Schedule a day and time for Anni to remind interns to post updates (EST)" : "!schedule [day] [hour:minute]\n\nHour and minute using the 24-hour clock.",
+			"Remove scheduled time for Anni to remind interns" : "!schedule remove [Job ID]\n\nGet Job ID from:\n!schedulecheck"
 		}
 
 		#check authorization
 		if authorize == False:
 			if option == None:
-				for i in basic:
-					data = data + str(i) + ": " +  basic[i] + "\n"
+				for idx,i in enumerate(basic): #iterate through a range of numbers the length of the question list
+					data = data + str(idx) + ": " + i + "\n"
 				data = data + generalInstruction
 			else:
-				if option <= len(basic):
-					data = commandInstruction + basicCommands[option] #Add minus one to accomodate for index initial value of 0
+				if option < len(basic):
+					for idx,op in enumerate(basic): #iterate through basic dictionary to find searched value
+						if option == idx:
+							data = commandInstruction + basic[op]
 				else:
 					data = "Sorry, It appears that I do not have a question for that number."
 					print("Error, invalid index given to createMessage [help::createMessage]")
 
 		elif authorize == True:
 			if option == None:
-				for i in basic:
-					data = data + str(i) + ": " + basic[i] + "\n"
-				for i in restricted:
-					data = data + str(i) + ": " + restricted[i] + "\n"
+				for idx,i in enumerate(basic):
+					data = data + str(idx) + ": " + i + "\n"
+				for idx,r in enumerate(restricted): 
+					#start counting at the length of basic for index
+					data = data + str(idx + len(basic)) + ": " + r + "\n"
 				data = data + generalInstruction
 			else:
-				if option <= len(basic) + len(restricted):
-					if option <= len(basic):
-						data = commandInstruction + basicCommands[option]
+				if option < len(basic) + len(restricted):
+					if option < len(basic):
+						for idx,op in enumerate(basic): #iterate through basic dictionary to find searched value
+							if option == idx:
+								data = commandInstruction + basic[op]
 					else:
-						data = commandInstruction + restrictedCommands[option]
+						for idx,op in enumerate(restricted): #iterate through restricted dictionary to find searched value
+							if option - len(basic) == idx:
+								data = commandInstruction + restricted[op]
 				else:
 					data = "Sorry, It appears that I do not have a question for that number."
 					print("Error, invalid index given to createMessage [help::createMessage]")

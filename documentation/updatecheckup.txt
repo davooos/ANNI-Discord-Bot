@@ -1,0 +1,16 @@
+COG: checkup
+NAME: updatecheckup
+
+IMPORTANT:
+The bot does not update intern data for the schedule feature
+automatically. This means that if an intern joins after the
+schedule is created; this command must be run to include
+them in the reminders.
+
+DESCRIPTION:
+This command is used to update intern data for the
+schedule feature.
+
+USAGE:
+This command does not take any arguments:
+	!updatecheckup
