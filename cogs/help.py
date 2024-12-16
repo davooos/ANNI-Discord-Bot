@@ -1,9 +1,7 @@
 import utils.helpers as helpers
+import utils.documentation as document
 import discord
 from discord.ext import commands
-import datetime
-from datetime import timezone
-from datetime import timedelta
 
 class help(commands.Cog):
 	def __init__(self, bot):
@@ -20,6 +18,7 @@ class help(commands.Cog):
 
 		#options for display
 		basic = {
+			"Get a detailed explanation for a command" : "!how explain [index]\nGet index with: !how explain",
 			"Make an alert that a meeting will be late" : "!alert minute [number of minutes]",
 			"Change/add my birthday to Anni" : "!memberconfig [Your Name] birthday [YYYY-MM-DD]",
 			"Ask Anni a question about the organization or job" : "!ask"
@@ -93,9 +92,14 @@ class help(commands.Cog):
 		elif len(tokens) == 2:
 			if tokens[1].isdigit():
 				data = self.createMessage(authorized, int(tokens[1]))
+			elif tokens[1] == "explain":
+				data = document.getdoc(None) #returns a list of commands with indexes
 			else:
 				stop = True
 				print("Error, Invalid index given for command example [help::how]")
+		elif len(tokens) == 3:
+			if tokens[2].isdigit() == True:
+				data = document.getdoc(tokens[2])
 		else:
 			stop = True
         

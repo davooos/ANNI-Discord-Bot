@@ -108,6 +108,7 @@ class view(commands.Cog):
 		#runtime flag variables
 		showHelp = bool(False)
 		validField = bool(False)
+		setEndDate = bool(False)
 
 		#runtime variables
 		newValue = None
@@ -147,7 +148,7 @@ class view(commands.Cog):
 							memberids.append(member)
 				else: #find members based on name
 					for member in log:
-						if mem.lower() == log[member]["Name"].lower():
+						if mem.lower() == log[member]["name"].lower():
 							memberids.append(member)
 
 			keyList = list(log.keys()) #convert dictionary view to list of keys
@@ -175,7 +176,7 @@ class view(commands.Cog):
 					else:
 						print("Error: invalid value given for intern status [view::memberconfig]")
 						allerrors.append("Unable to interpret newValue for intern status.")
-				elif field.lower() == "startdate" or field == "EndDate":
+				elif field.lower() == "startdate" or field == "enddate":
 					cur_date = datetime.datetime.now(timezone.utc)
 					if newValue in dateTokens:
 						newValue = cur_date
@@ -209,9 +210,9 @@ class view(commands.Cog):
 				log[m][field] = newValue #update log if parameters are valid
 				if setEndDate == True: #intern field is being set which means enddate must be configured
 					period = timedelta(weeks=16)
-					join_date = log[m]["StartDate"]
+					join_date = log[m]["startdate"]
 					end_date = join_date + period #overload operator for datetime that returns timedelta obj
-					log[m]["EndDate"] = end_date
+					log[m]["enddate"] = end_date
 				
 			try:	#save new member config to file
 				helpers.saveCache("members", "MemberData", log) #save modified config file
