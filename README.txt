@@ -8,12 +8,13 @@ ABOUT:
 	answering common questions for organization members.
 
 FILE STRUCTURE:
-	./cache -> Directories holding data saved by bot.
-	./cogs -> COG files. Each file in this directory is loaded at startup.
-	./documentation -> text files that contain command documentation. Used by help COG.
+	./cache/ -> Directories holding data saved by bot.
+	./cogs/ -> COG files. Each file in this directory is loaded at startup.
+	./documentation/ -> text files that contain command documentation. Used by help COG.
 	./main.py -> Bot setup file that is run to start bot.
-	./utils -> Contains python helper scripts with functions for use in COGS.
+	./utils/ -> Contains python helper scripts with functions for use in COGS.
 	./utils/helpers.py -> Main helper file with functions to be used by any or all COGS.
+	./.archived/ -> Depreciated code. 
 	
 PROJECT SPECIFICATIONS:
 	- The bot uses python 3.13
