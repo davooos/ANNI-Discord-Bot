@@ -7,6 +7,19 @@ ABOUT:
 	Some of these tasks may involve getting progress reports from members, or
 	answering common questions for organization members.
 
+FILE STRUCTURE:
+	./cache -> Directories holding data saved by bot.
+	./cogs -> COG files. Each file in this directory is loaded at startup.
+	./documentation -> text files that contain command documentation. Used by help COG.
+	./main.py -> Bot setup file that is run to start bot.
+	./utils -> Contains python helper scripts with functions for use in COGS.
+	./utils/helpers.py -> Main helper file with functions to be used by any or all COGS.
+	
+PROJECT SPECIFICATIONS:
+	- The bot uses python 3.13
+	- Bot currently uses YAML to save data to files.
+		- Functions used by COGS to save and load files are found in ./utils/helpers.py
+
 Getting Started:
 	The bot uses Python 3.13.
 	Start setup by creating a Python virtual environment in the root of the project directory.
