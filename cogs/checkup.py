@@ -30,11 +30,11 @@ class checkup(commands.Cog):
 		stop = bool(False)
 		
 		for m in log:
-			if log[m]["Position"].lower() == "intern" and log[m]["EndDate"] > log[m]["StartDate"]:
+			if log[m]["position"].lower() == "intern" and log[m]["enddate"] > log[m]["startdate"]:
 				data = "Hey there, I hope your week has been going well! "
 				data = data + "Don't forget to submit your weekly report to your team leader!\n"
-			if log[m]["Team Leader"] != None:
-				data = data + "Your team leader is " + log[m]["Team Leader"]
+			if log[m]["teamleader"] != None:
+				data = data + "Your team leader is " + log[m]["teamleader"]
 				
 			for member in members:
 				if member.id == m:

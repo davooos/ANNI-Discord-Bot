@@ -46,10 +46,10 @@ class chatbot(commands.Cog):
 			elif len(tokens) < 3:
 				if tokens[1].isdigit() == True:
 					if tokens[1] == '1':
-						if authorStats["Position"].lower() == "intern":
-							join_date = authorStats["StartDate"]
+						if authorStats["position"].lower() == "intern":
+							join_date = authorStats["startdate"]
 							cur_date = datetime.now(timezone.utc)
-							end_date = authorStats["EndDate"]
+							end_date = authorStats["enddate"]
 							joinStamp = helpers.getTimeStamp(join_date)
 							endStamp = helpers.getTimeStamp(end_date)
 							time_till_end = end_date - cur_date

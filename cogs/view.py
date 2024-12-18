@@ -32,7 +32,7 @@ class view(commands.Cog):
 				memData["enddate"] = "na"
 				memData["birthday"] = "na"
 				memData["team"] = "na"
-				memData["team leader"] = "na"
+				memData["teamleader"] = "na"
 			    #beginning of block contains for loops that search individual member roles to set default variables.
 				for role in member.roles:
 				#check for roles regarding position in organization
@@ -60,7 +60,7 @@ class view(commands.Cog):
 								inTeam = True
 						
 						if isLeader == True and inTeam == True:
-							memData["team leader"] = m.global_name
+							memData["teamleader"] = m.global_name
 							break
 							
 						isLeader = False
