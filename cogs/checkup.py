@@ -22,10 +22,6 @@ class checkup(commands.Cog):
 		members = self.context.guild.members
 		log = helpers.loadCache("members","MemberData")
 
-		#temp variables
-		memberid = int(0)
-		leaderid = int(0)
-
 		#flag variables
 		stop = bool(False)
 		
@@ -33,7 +29,7 @@ class checkup(commands.Cog):
 			if log[m]["position"].lower() == "intern" and log[m]["enddate"] > log[m]["startdate"]:
 				data = "Hey there, I hope your week has been going well! "
 				data = data + "Don't forget to submit your weekly report to your team leader!\n"
-			if log[m]["teamleader"] != None:
+			if log[m]["teamleader"] != None or log[m]["team leader"] != "na":
 				data = data + "Your team leader is " + log[m]["teamleader"]
 				
 			for member in members:

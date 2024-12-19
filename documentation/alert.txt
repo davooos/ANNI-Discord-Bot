@@ -9,8 +9,7 @@ USAGE:
 This command contains an alias of "al". So, !al and !alert
 can be used interchangeably.
 
-To send an alert that the meeting will be 10 minutes
-late:
+To send an alert that the meeting will be 10 minuteslate:
 	!al min 10
 
 To send an alert with a different ping:
@@ -18,3 +17,7 @@ To send an alert with a different ping:
 	
 To send an alternate message:
 	!al min 10 meet
+	
+To display a message along with a saved meeting link
+(See link command documentation to save a link):
+	!al [link name]

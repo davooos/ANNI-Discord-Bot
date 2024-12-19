@@ -14,11 +14,11 @@ class view(commands.Cog):
 		log = dict() #dictionary for members
 		memData = dict() #dictionary for individual member data
 		members = ctx.guild.members #THIS MAY BE ONLY FOR CACHED MEMBERS IN SERVER --- PLEASE CHECK LATER
-		leaderTokens = ["leader","chief","officer","manager"]
 		
 		#keywords
 		internKeys = ["intern", "novice"]
-		volunteerKeys = ["volunteer", "associate"]
+		volunteerKeys = ["volunteer", "associate", "worker", "member"]
+		leaderTokens = ["leader","chief","officer","manager"]
 
 		#flag variables
 		isLeader = bool(False)
@@ -26,13 +26,15 @@ class view(commands.Cog):
 
 		for member in members:
 			if member.bot == False:
-				memData["id"] = member.id
-				memData["name"] = str(member.global_name).lower()
-				memData["startdate"] = member.joined_at
-				memData["enddate"] = "na"
-				memData["birthday"] = "na"
-				memData["team"] = "na"
-				memData["teamleader"] = "na"
+				memData = {
+					"id": member.id,
+					"name": str(member.global_name).lower(),
+					"startdate": member.joined_at,
+					"enddate": "na",
+					"birthday": "na",
+					"team": "na",
+					"teamleader": "na"
+				}
 			    #beginning of block contains for loops that search individual member roles to set default variables.
 				for role in member.roles:
 				#check for roles regarding position in organization

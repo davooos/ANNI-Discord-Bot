@@ -24,6 +24,8 @@ class help(commands.Cog):
 			"Ask Anni a question about the organization or job" : "!ask"
 		}
 		restricted = {
+			"Display alert with meeting link" : "!alert [link name]\n(Links are added with the '!link save [name] [URL]' command)",
+			"View, save, remove meeting links in bot" : "!link",
 			"Change intern/associate start date" : "!memberconfig [Name or ID] startDate [YYYY-MM-DD]",
 			"Change intern/associate end date" : "!memberconfig [Name or ID] endDate [YYYY-MM-DD]",
 			"Change member position(role in company)" : "!memberconfig [Name or ID] position [intern/volunteer/alumni]",

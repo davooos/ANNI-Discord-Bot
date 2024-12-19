@@ -9,9 +9,12 @@ import yaml
 logging.basicConfig(level=logging.INFO)
 
 # Create bot instance
-intents = discord.Intents.all()
-#intents.messages = True
-#intents.guilds = True
+intents = discord.Intents.default()
+intents.messages = True
+intents.guild_messages = True
+intents.dm_messages = True
+intents.message_content = True
+intents.guilds = True
 
 #Only respond to messages in a specific channel:
 #channel = discord.utils.get(ctx.guild.channels, name="channel name")
@@ -61,7 +64,6 @@ async def check(ctx):
 # get bot token
 token = getToken(".bot.yaml") #FULL PATH TO TOKEN YAML GOES HERE AS STRING
 # Run the bot
-print(token)
 if token != "":
 	bot.run(token)
 else:
