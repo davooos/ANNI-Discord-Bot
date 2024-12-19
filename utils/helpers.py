@@ -81,7 +81,7 @@ def convertTime(date: str() = None) -> datetime:
 	return data
 	
 def checkAuth(author) -> bool():
-	authorizedRoles = ["moderator", "team leader"] #CHECK LATER WHEN MORE ROLES ARE ADDED
+	authorizedRoles = ["moderator", "team leader", "leader", "admin", "chief", "officer"] #CHECK LATER WHEN MORE ROLES ARE ADDED
 
 
 	for role in author.roles:
