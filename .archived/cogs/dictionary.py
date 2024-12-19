@@ -7,20 +7,20 @@ class dictionary(commands.Cog):
 	def __init__(self, bot):
 		self.bot = bot
 
-	@commands.command(name="d", description="short hand for define function")
-	async def d(self, ctx): #alias to define function
+	@commands.command(name="de", description="short hand for define function")
+	async def de(self, ctx): #alias to define function
 		await self.define(ctx) #call function
 		
-	@commands.command(name="e", description="short hand for example function")
-	async def e(self, ctx): #alias to example function
+	@commands.command(name="exa", description="short hand for example function")
+	async def exa(self, ctx): #alias to example function
 		await self.example(ctx)
 	
-	@commands.command(name="s", description="short hand for synonym function")
-	async def s(self, ctx): #alias to synonym function
+	@commands.command(name="syn", description="short hand for synonym function")
+	async def syn(self, ctx): #alias to synonym function
 		await self.synonym(ctx)
 		
-	@commands.command(name="c", description="short hand for cache function")
-	async def c(self, ctx): #alias to cache function
+	@commands.command(name="cac", description="short hand for cache function")
+	async def cac(self, ctx): #alias to cache function
 		await self.cache(ctx)
 	
 	@commands.command(name="define", description="Returns definitions for a given word")

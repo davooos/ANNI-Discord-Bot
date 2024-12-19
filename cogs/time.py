@@ -7,17 +7,102 @@ from datetime import timezone
 class time(commands.Cog):
 	def __init__(self, bot):
 		self.bot = bot
-		
-	@commands.command(name="h", description="sends instructional message")
-	async def h(self, ctx):
+
+	@commands.command(name="link", description="save, remove, view links")
+	async def link(self, ctx):
+		stripped = ctx.message.content.replace("[","").replace("]","")
+		tokens = stripped.split()
 		data = str()
-		data = data + "Command examples:\n"
-		data = data + "		!alert minute 5\n"
-		data = data + "Or short hand:\n"
-		data = data + "		!a m 5\n"
-		data = data + "Long format(Enter specific time)(AM and PM will default to current):\n"
-		data = data + "		!a 7:45 AM\n"
-		await ctx.send(data)
+
+		#flag variables
+		remove = bool(False)
+		save = bool(False)
+		all = bool(False)
+		
+		#set flag variables for save or remove
+		if len(tokens) >= 2:
+			if tokens[1] == "remove" or tokens[1] == "rm":
+				remove = True
+			if tokens[1] == "save" or tokens[1] == "make":
+				save = True
+			if tokens[1] == "all" or tokens[1] == "show" or tokens[1] == "list":
+				all = True
+		else:
+			all = True
+
+		
+
+		#Logic for saving a link
+		if save == True:
+			if len(tokens) == 4:
+				try:
+					linkLog = helpers.loadCache("log", "links")
+				except:
+					linkLog = dict()
+				
+				linkLog[tokens[2]] = tokens[3]
+				try:
+					helpers.saveCache("log", "links", linkLog)
+					data = "Done!"
+					await ctx.send(data)
+					return
+				except:
+					print("Error, Unable to save links [time::savelink]")
+					data = "Sorry, I was not able to save this link."
+					await ctx.send(data)
+					return
+			else:
+				await ctx.send("I could not interpret your command. Use '!how' for help.\nCommand example: !savelink [name] [link]")
+				return
+			
+		#Logic to show all links
+		elif all == True:
+			try:
+				linkLog = helpers.loadCache("log", "links")
+				data = "**Links: **\n"
+				for key in list(linkLog.keys()):
+					data = data + "- " + key + " : " + linkLog[key] + "\n"
+
+				data = data + "\n**Save new link:** !link save [name] [URL]\n"
+				data = data + "**Remove saved link:** !link remove [name]\n"
+				await ctx.send(data)
+				return
+			except:
+				print("Error, unable to load cache file [time::link]")
+				data = "Sorry, I was unable to retrieve the links."
+				await ctx.send(data)
+				return
+			
+		elif remove == True:
+			if len(tokens) == 3:
+				try:
+					linkLog = helpers.loadCache("log", "links")
+				except:
+					await ctx.send("No need to delete. There are no links saved.")
+					return
+
+				if tokens[2] in list(linkLog.keys()):
+					del linkLog[tokens[2]]
+					try:
+						helpers.saveCache("log", "links", linkLog)
+						data = str(tokens[2]) + " has been deleted."
+						await ctx.send(data)
+						return
+					except:
+						print("Error, unable to save cache file [time::link]")
+						await ctx.send("I was unable to delete that link.")
+						return
+				else:
+					data = "Sorry, I do not have a link associated with " + tokens[2]
+					await ctx.send(data)
+					return
+			else:
+				data = "Sorry, I was unable to interpret your command. Use the '!how' command for help."
+				await ctx.send(data)
+				return
+		else:
+			await ctx.send("It was not specified to save or remove this alias. Use the '!how' command for help.")
+			return
 	
 	@commands.command(name="al", description="alias to alert command")
 	async def al(self, ctx):
@@ -25,50 +110,38 @@ class time(commands.Cog):
 		
 	@commands.command(name="alert", description="creates an alert")
 	async def alert(self, ctx):
-		#config = helpers.loadConfig("time")
-		#zone = config["timezone"].upper()
-	
 		syntaxError = bool(False)
 		gotTime = bool() #flag used to denote the finding of a time value
 		role = str("everyone")
-		shortFormat = bool(False) # single time value format
-		longFormat = bool(False) # 00:00 format
 		tokens = list() #command when separated by spaces
-		fields = list() #the values in time format 00:00
 		data = str() #message that will be sent as response to command
 		hour = int(0)
 		minute = int(0)
-		second = int(0)
 		minOP = bool(False) #makes single value time minutes
-		secOP = bool(False) #makes single value time seconds
 		hourOP = bool(False) #makes single value time hours
 		singleTimeValue = int() #stores time value if it is in the short format
-		dayHalf = str() #AM/PM
 		#alert messages
 		meeting = bool(False) #sets message type to meeting (Default)
 		delay = bool(True) #sets message type to delayed meeting
+		linkLog = helpers.loadCache("log", "links")
+		link = str()
+		gotLink = bool(False)
 		
 		
-		tokens = ctx.message.content.split()
+		stripped = ctx.message.content.replace("[","").replace("]","")
+		tokens = stripped.split()
 		#parse tokens, setting flags or values declared above
 		if len(tokens) > 1:
 			for idx, token in enumerate(tokens):
+				for key in list(linkLog.keys()):
+					if str(key).lower() == token:
+						gotLink = True
+						link = linkLog[key]
 				if "min" in token.lower() or token.lower() == "m":
 					minOP = True
-					shortFormat = True
 						
 				if "hour" in token.lower() or token.lower() == "h":
 					hourOP = True
-					shortFormat = True
-						
-				if ":" in token and gotTime == False:
-					fields = token.split(":")
-					gotTime = True
-					longFormat = True
-					if fields[0] and fields[0].isdigit():
-						hour = int(fields[0])
-					if fields[1] and fields[1].isdigit():
-						minute = int(fields[1])
 				
 				if token.isdigit() == True and gotTime == False:
 					singleTimeValue = int(token)
@@ -80,62 +153,55 @@ class time(commands.Cog):
 				
 				if "$" in token:
 					role = token.replace("$", "")
-					
-				if token.upper() == "AM":
-					dayHalf = "AM"
-				
-				if token.upper() == "PM":
-					dayHalf = "PM"
+		else:
+			data = "Sorry, I could not fullfill your command. Use the '!how' command for help."
+			await ctx.send(data)
+			return
 		
 		#Generate current time object
 		now = datetime.datetime.now()
 		
-		
-
-		if shortFormat == True:
+		if gotTime == True:
 			if hourOP == True:
 				hour = singleTimeValue
 				future = now + datetime.timedelta(hours=hour)
 			elif minOP == True:
 				minute = singleTimeValue
-				future = now + datetime.timedelta(minutes=minute)
-			elif secOP == True:
-				second = singleTimeValue
-				future = now + datetime.timedelta(seconds=second)
+				future = now + datetime.timedelta(minutes=minute)	
 			else:
-				print("ERROR: single time value used without value option [remind::alert]")
-				
+				data = "Sorry, I could not identify the time given.\nUse '!how' for help.\n"
+				data = data + "Command example: !alert minute 5"
+				await ctx.send(data)
+				return
+		
+			#Generate discord timestamp useing new timedelta created above
 			unix_timestamp = int(future.timestamp())
 			discord_timestamp = f"<t:{unix_timestamp}:f>"
-			
-		elif longFormat == True:
-			pass #WORK IN PROGRESS
-			#futureTime = self.diffTime(hour,minute,second,dayHalf)
-		else:
-			print("ERROR: format option was not set [remind::alert]")
-			syntaxError = True
 		
-		#Construct data message for meeting mode
-		#Meeting message is used in else clause as it is the default case
-		if delay == True and meeting != True:
-			data = data + "@" + role + " Oops, there has been a technical delay, our meeting will be starting at "
-		else:
-			data = data + "@" + role + " Meeting will be starting at "	
+			#Construct data message for meeting mode
+			#Meeting message is used in else clause as it is the default case
+			if delay == True and meeting != True:
+				data = data + "@" + role + " There has been a technical delay, our meeting will be starting at "
+			else:
+				data = data + "@" + role + " Meeting will be starting at "	
 		
-		#Add timestamp to data message
-		data = data + discord_timestamp
+			#Add timestamp to data message
+			data = data + discord_timestamp
+		elif gotLink == True:
+			data = data + "@" + role + " Our meeting is starting! " + link
+		else:
+			await ctx.send("Sorry I was unable to interpret your command. Please use the '!how' command for help.")
+			return
 
 		#check for syntax errors before sending message
-		if syntaxError == False and gotTime == True:
+		if syntaxError == False:
 			await ctx.send(data)
 		elif syntaxError == True:
 			await ctx.send("Improper syntax, command example: !alert min 5\nEnter !h for more help.")
-		elif gotTime == False:
-			await ctx.send("I did not detect that a time value was given. Command example: !alert min 5\nEnter !h for more help.")
 		else:
-			await ctx.send("I was unable to find a specified time or syntax is incorrect, command example: !alert min 5\nEnter !h for more help.")
-				
-			
+			await ctx.send("I was unable to find a specified time or syntax is incorrect,\nCommand example: !alert min 5\nEnter '!how' for help.")
+
+
 async def setup(bot):
 	await bot.add_cog(time(bot))
 

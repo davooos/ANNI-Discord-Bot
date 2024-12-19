@@ -1,0 +1,10 @@
+COG: checkup
+NAME: runcheck
+
+DESCRIPTION:
+This command will send a reminder to post progress
+updates to all interns.
+
+USAGE:
+This command does not take any arguments:
+	!runcheck

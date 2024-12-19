@@ -1,13 +1,8 @@
-#Definition object has members definition, example, or synonyms[].
-#Word Object has members phonetics
-#phonetics object has members Phonetic, audio
-
-
 from freedictionaryapi.clients.sync_client import DictionaryApiClient
 import yaml
 import os
 
-blockLocation = "cache/wordCache/"
+blockLocation = "cache/wordCache/" #location of files storing word data (blocks)
 
 def writeBlock(word: str()) -> dict():
 	partOfSpeech = str()
@@ -27,8 +22,8 @@ def writeBlock(word: str()) -> dict():
 					examples.append(str(definition.example))
 		for synonym in definition.synonyms:
 			synonyms.append(synonym)
+	
 	#create block		
-	#fix this, reads like shit
 	block = {"word": word, "partOfSpeech": partOfSpeech, "definitions": definitions, "examples": examples, "synonyms": synonyms}
 	
 	#create yaml file for block

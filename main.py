@@ -9,9 +9,15 @@ import yaml
 logging.basicConfig(level=logging.INFO)
 
 # Create bot instance
-intents = discord.Intents.all()
-#intents.messages = True
-#intents.guilds = True
+intents = discord.Intents.default()
+intents.messages = True
+intents.guild_messages = True
+intents.dm_messages = True
+intents.message_content = True
+intents.guilds = True
+
+#Only respond to messages in a specific channel:
+#channel = discord.utils.get(ctx.guild.channels, name="channel name")
 
 bot = commands.Bot(command_prefix='!', intents=intents)
 
@@ -48,11 +54,16 @@ async def on_ready() -> None:
     print(f'Logged in as {bot.user.name} ({bot.user.id})')
     await load_cogs()
 
+@bot.before_invoke #run before any called command is executed
+async def check(ctx):
+	if not ctx.guild: #check to see if command was sent in a guild (server)
+		await ctx.send("Sorry, Anni must only be used from within the Adventure Ted Discord Server.")
+		raise commands.CheckFailure #Raise error that stops command execution
+
 
 # get bot token
 token = getToken(".bot.yaml") #FULL PATH TO TOKEN YAML GOES HERE AS STRING
 # Run the bot
-print(token)
 if token != "":
 	bot.run(token)
 else:
