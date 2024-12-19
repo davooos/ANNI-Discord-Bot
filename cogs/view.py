@@ -18,7 +18,7 @@ class view(commands.Cog):
 		#keywords
 		internKeys = ["intern", "novice"]
 		volunteerKeys = ["volunteer", "associate", "worker", "member"]
-		leaderTokens = ["leader","chief","officer","manager"]
+		leaderTokens = ["leader","manager"]
 
 		#flag variables
 		isLeader = bool(False)
