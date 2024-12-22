@@ -21,16 +21,16 @@ Some of these tasks may involve getting progress reports from members or answeri
   - Functions used by COGS to save and load files are found in `./utils/helpers.py`.
 
 ### GETTING STARTED:
-2. Start setup by creating a Python virtual environment in the root of the project directory.
-3. Then, install the following dependencies:
+1. Start setup by creating a Python virtual environment in the root of the project directory.
+2. Then, install the following dependencies:
     - `pyyaml`
     - `discord`
     - `httpx`
     - `audioop-lts`
     - `apscheduler`
-4. A YAML file named `.bot.yaml` must also be created in the root directory with the following line:  
+3. A YAML file named `.bot.yaml` must also be created in the root directory with the following line:  
    `token: YOUR_BOT_TOKEN`
-5. Now, you can start the bot by running the `main.py` file with the Python interpreter.
+4. Now, you can start the bot by running the `main.py` file with the Python interpreter.
 
 ### GENERAL USAGE:
 The command prefix for this bot is `!`.  
