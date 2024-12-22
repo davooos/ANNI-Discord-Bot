@@ -21,7 +21,6 @@ Some of these tasks may involve getting progress reports from members or answeri
   - Functions used by COGS to save and load files are found in `./utils/helpers.py`.
 
 ### GETTING STARTED:
-1. The bot uses Python 3.13.
 2. Start setup by creating a Python virtual environment in the root of the project directory.
 3. Then, install the following dependencies:
     - `pyyaml`
