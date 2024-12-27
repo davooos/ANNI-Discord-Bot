@@ -1,5 +1,5 @@
-#Ignore .bot.yaml file
-.bot.yaml
+#Ignore .env file
+.env
 #Ignore virtual environment for python
 .venv
 #ignore temp folder

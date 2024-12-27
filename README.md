@@ -18,7 +18,7 @@ Some of these tasks may involve gathering progress reports from members or answe
 - `./.archived/` -> Deprecated code.  
 
 ### PROJECT SPECIFICATIONS:
-- This project uses Python 3.13.  
+- This project uses Python 3.12.  
 - This project currently uses YAML to save data to files.
   - Functions used by COGS to save and load files are found in `./utils/helpers.py`.
 
@@ -36,11 +36,11 @@ Some of these tasks may involve gathering progress reports from members or answe
    `Set-ExecutionPolicy RemoteSigned`
 4. Then, install the following dependencies within the virtual environment:
    - Linux/Unix system:\
-   `.venv/bin/pip install pyyaml discord httpx audioop-lts apscheduler`
+   `.venv/bin/pip install pyyaml discord httpx python-dotenv apscheduler`
    - Windows system(CMD):\
    `pip install pyyaml discord httpx audioop-lts apscheduler`
-5. A YAML file named `.bot.yaml` must also be created in the root of the project directory with the following line inside:\
-   `token: YOUR_BOT_TOKEN`
+5. A file named `.env` must also be created in the root of the project directory with the following line inside:\
+   `token:"YOUR_BOT_TOKEN"`
 6. Now, you can start the bot by running the `main.py` file with the Python interpreter:
    - Linux/Unix system:\
    `.venv/bin/python main.py`
