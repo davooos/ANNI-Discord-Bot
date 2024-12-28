@@ -15,7 +15,6 @@ Some of these tasks may involve gathering progress reports from members or answe
 - `./main.py` -> Bot setup file that is run to start the bot.  
 - `./utils/` -> Contains Python helper scripts with functions for use in COGS.  
 - `./utils/helpers.py` -> Main helper file with functions to be used by any or all COGS.  
-- `./.archived/` -> Deprecated code.  
 
 ### PROJECT SPECIFICATIONS:
 - This project uses Python 3.12.  
