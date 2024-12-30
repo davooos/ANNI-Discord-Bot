@@ -11,7 +11,7 @@ Some of these tasks may involve gathering progress reports from members or answe
 ### FILE STRUCTURE:
 - `./cache/` -> Directories holding data saved by the bot.  
 - `./cogs/` -> COG files. Each file in this directory is loaded at startup.  
-- `./documentation/` -> Text files that contain command documentation. These are used by the help COG.  
+- `./doc/` -> Text files that contain command documentation. These are used by the help COG.  
 - `./main.py` -> Bot setup file that is run to start the bot.  
 - `./utils/` -> Contains Python helper scripts with functions for use in COGS.  
 - `./utils/helpers.py` -> Main helper file with functions to be used by any or all COGS.  
@@ -48,4 +48,4 @@ Some of these tasks may involve gathering progress reports from members or answe
 
 ### GENERAL USAGE:
 The command prefix for this bot is `!`.  
-In your server with the bot installed, use the `!how` command to get general commands and full documentation for commands. You can also view the files in `./documentation/` of the project for full command instructions.
+In your server with the bot installed, use the `!how` command to get general commands and full documentation for commands. You can also view the files in `./doc/` of the project for full command instructions.
