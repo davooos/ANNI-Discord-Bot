@@ -1,12 +1,12 @@
 ### COG: time
 ### NAME: link
 
-#### DESCRIPTION:
+**DESCRIPTION**:\
 This command is used to save URL links to the bot. These links can be
 displayed as in alerts. For example, a zoom link can be saved to 
 the bot using `!link` for easy access inside the `!alert` command.
 
-#### USAGE:
+**USAGE**:\
 - To save a new URL to the bot:\
 `!link save [name] [URL]`
 

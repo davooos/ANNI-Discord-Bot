@@ -1,11 +1,11 @@
 ### COG: chatbot
 ### NAME: ask
 
-#### DESCRIPTION:
+**DESCRIPTION**:\
 This command is used to ask ANNI questions that ANNI will
 then answer for the user.
 
-#### USAGE:
+**USAGE**:\
 - To get a list of questions that ANNI can answer:\
 `!ask`
 	

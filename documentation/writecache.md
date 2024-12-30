@@ -1,11 +1,11 @@
 ### COG: view
 ### NAME: writecache
 
-#### DESCRIPTION:
+**DESCRIPTION**:\
 This command creates the log file that holds member and server data.
 This file must be created for all of the bot features to
 work.
 
-#### USAGE:
+**USAGE**:\
 - This command is used without parameters or arguments:\
 `!writecache`

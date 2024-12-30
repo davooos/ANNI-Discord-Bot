@@ -1,15 +1,15 @@
 ### COG: view
 ### NAME: memberconfig
 
-#### IMPORTANT:
+**IMPORTANT**:\
 Dates given to this command should be in 'YYYY-MM-DD' format.
 
-#### DESCRIPTION:
+**DESCRIPTION**:\
 This command is used to change and update the
 data saved in the bot's user/member log. This would be used for tasks
 such as updating an intern's starting date or ending date.
 
-#### USAGE:
+**USAGE**:\
 - To change the field of a particular member:\
 `!memberconfig [name/id] [field] [new value]`
 

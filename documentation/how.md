@@ -1,13 +1,13 @@
 ### COG: help
 ### NAME: how
 
-#### DESCRIPTION:
+**DESCRIPTION**:\
 This command gives quick command information
 as well as full documentation. It can be used to
 get a 'copy and paste' command that a user can use
 to interact with ANNI.
 
-#### USAGE:
+**USAGE**:\
 - Running this command with no arguments will return
 a list of options for the user:\
 `!how`

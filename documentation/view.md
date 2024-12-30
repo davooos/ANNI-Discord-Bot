@@ -1,13 +1,13 @@
 ### COG: view
 ### NAME: view
 
-#### DESCRIPTION:
+**DESCRIPTION**:\
 The bot saves an organized list of server members with important 
 data used for bot features. For example, the bot records position 
 in the company, team, team name, join date, etc. This data is used
 to run bot features.
 
-#### USAGE:
+**USAGE**:\
 - To get a list of all data collected by the bot:\
 `!view all`
 

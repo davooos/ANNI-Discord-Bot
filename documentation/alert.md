@@ -1,10 +1,10 @@
 ### COG: time
 ### NAME: alert
 
-#### DESCRIPTION:
+**DESCRIPTION**:
 This command sends an alert to notify users of important information.
     
-#### USAGE:
+**USAGE**:\
 This command has an alias of "al"; both !al and !alert can be used interchangeably.
 
 - To send an alert notifying that the meeting will start in 10 minutes:\

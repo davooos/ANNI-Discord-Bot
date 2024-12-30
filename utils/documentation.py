@@ -13,7 +13,8 @@ def getdoc(idx: int = None) -> str:
     if idx == None:
         data = "Commands: \n"
         for i,doc in enumerate(os.listdir("./documentation")):
-            data = data + str(i) + ": " + doc + "\n"
+            doc = doc[:-3]  # Strip the .md extension
+            data = data + str(i) + ". " + doc + "\n"
             fileFound = True
         
         if fileFound == True:
@@ -22,9 +23,9 @@ def getdoc(idx: int = None) -> str:
             data = "Sorry, I was unable to find documentation files."
             return data
 
-    else:
+    else: #return data from file at index
         for i,doc in enumerate(os.listdir("./documentation")):
-            if str(i) == str(idx):
+            if str(i+1) == str(idx):
                 file = open("./documentation/" + doc)
                 data = file.read()
                 file.close()
