@@ -34,12 +34,13 @@ Some of these tasks may involve gathering progress reports from members or answe
      - If you get an error saying that running scripts is not enabled on your system, run the following as administrator:\
    `Set-ExecutionPolicy RemoteSigned`
 4. Then, install the following dependencies within the virtual environment:
+   - Pip dependancy `audioop-lts` is needed for Python 3.13.
    - Linux/Unix system:\
    `.venv/bin/pip install pyyaml discord httpx python-dotenv apscheduler`
    - Windows system(CMD):\
    `pip install pyyaml discord httpx audioop-lts apscheduler`
 5. A file named `.env` must also be created in the root of the project directory with the following line inside:\
-   `token:"YOUR_BOT_TOKEN"`
+   `token=YOUR_BOT_TOKEN`
 6. Now, you can start the bot by running the `main.py` file with the Python interpreter:
    - Linux/Unix system:\
    `.venv/bin/python main.py`

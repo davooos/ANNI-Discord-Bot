@@ -16,6 +16,7 @@ intents.guild_messages = True
 intents.dm_messages = True
 intents.message_content = True
 intents.guilds = True
+intents.members = True
 
 #Only respond to messages in a specific channel:
 #channel = discord.utils.get(ctx.guild.channels, name="channel name")

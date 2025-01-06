@@ -24,11 +24,12 @@ class view(commands.Cog):
 		isLeader = bool(False)
 		inTeam = bool(False)
 
+		print(members)
 		for member in members:
 			if member.bot == False:
 				memData = {
 					"id": member.id,
-					"name": str(member.global_name).lower(),
+					"name": str(member.global_name),
 					"startdate": member.joined_at,
 					"enddate": "na",
 					"birthday": "na",
@@ -325,6 +326,42 @@ class view(commands.Cog):
 			errors.append("Unable to interpret command arguments.")
 
 		
+		if len(data) < 1 or len(errors) > 0:
+			data = "Sorry, I am not able to fullfill your command, use the !how command for help.\n"
+			data = data + "Errors: \n"
+			for e in errors:
+				data = data + "[E] " + e + "\n"
+			await ctx.send(data)
+		else:
+			await ctx.send(data)
+
+	@commands.command(name="get", description="Get data lists from bot.")
+	async def get(self, ctx) -> None:
+		stripped = ctx.message.content.replace("[","").replace("]","")
+		tokens = stripped.split()
+		data = str()
+		errors = list()
+
+		#get log from yaml config file
+		log = helpers.loadCache("members","MemberData")
+		if bool(log) == False: #check to see if the log is empty -- meaning it could not be loaded
+			await self.createLog(ctx) #create new log
+			log = helpers.loadCache("members","MemberData")
+			if bool(log) == False:
+				errors.append("Unable to load members from log.")
+
+
+		if len(tokens) == 2: #command with one argument
+			if tokens[1] == "interns" or tokens[1] == "intern":
+				data = "Interns: \n\n"
+				for member in log:
+					if log[member]["position"] == "intern":
+						data = data + log[member]["name"] + "\n"
+			else:
+				errors.append("Invalid argument to command.")
+		else:
+			errors.append("Invalid number of arguments given.")
+
 		if len(data) < 1 or len(errors) > 0:
 			data = "Sorry, I am not able to fullfill your command, use the !how command for help.\n"
 			data = data + "Errors: \n"
