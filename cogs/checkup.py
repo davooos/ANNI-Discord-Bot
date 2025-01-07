@@ -1,10 +1,23 @@
+#Imports
 import utils.helpers as helpers
-import discord
-from discord.ext import commands
+import os.path
 import datetime
 from datetime import tzinfo, timedelta, datetime, timezone
+
+#Discord imports
+import discord
+from discord.ext import commands
+
+#Scheduler imports
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
 from apscheduler.triggers.cron import CronTrigger
+
+#Google imports
+from google.auth.transport.requests import Request
+from google.oauth2.credentials import Credentials
+from google_auth_oauthlib.flow import InstalledAppFlow
+from googleapiclient.discovery import build
+from googleapiclient.errors import HttpError
 
 class checkup(commands.Cog):
 	def __init__(self, bot):
@@ -14,21 +27,77 @@ class checkup(commands.Cog):
 		self.scheduled = bool(False)
 		self.taskNum = int(0)
 		self.context = None
-		
+		# Scheduler variables
 		self.scheduler.start()
+		# Google API variables
+		self.creds = None
+		self.reportLink = str()
+	
+	def getSignedMembers(self) -> list():
+		# If modifying these scopes, delete the file token.json.
+		SCOPES = ["https://www.googleapis.com/auth/spreadsheets.readonly"]
+		# The ID and range of the spreadsheet.
+		SPREADSHEET_ID = "" #Paste spreadsheet id from url (after /d/)
+		RANGE_NAME = "" #Add range of !'first cell':'last cell'
+		NAMEINDEX = int() #Add index of member name location as it is listed in the google sheet.
+
+		signedMembers = list()
+
+		if os.path.exists("cache/GoogleAPI/token.json"):
+			self.creds = Credentials.from_authorized_user_file("cache/GoogleAPI/token.json", SCOPES)
+
+		# If there are no (valid) credentials available, let the user log in.
+		if not self.creds or not self.creds.valid:
+			if self.creds and self.creds.expired and self.creds.refresh_token:
+				self.creds.refresh(Request())
+			else:
+				flow = InstalledAppFlow.from_client_secrets_file(
+				"cache/GoogleAPI/credentials.json", SCOPES
+				)
+			self.creds = flow.run_local_server(port=0)
+		# Save the credentials for the next run
+		with open("cache/GoogleAPI/token.json", "w") as token:
+			token.write(self.creds.to_json())
 		
+		try:
+			service = build("sheets", "v4", credentials=self.creds)
+
+			# Call the Sheets API
+			sheet = service.spreadsheets()
+			result = (
+				sheet.values()
+				.get(spreadsheetId=SPREADSHEET_ID, range=RANGE_NAME)
+				.execute()
+			)
+			values = result.get("values", [])
+
+			if not values:
+				print("Error, could not retrieve data from Google Sheets.")
+				return
+
+			#Save names of members in report
+			for row in values:
+				signedMembers.append(row[NAMEINDEX])
+
+		except HttpError as err:
+			print(err)
+
+		#Return list of member names from report
+		return signedMembers
+
+
 	async def check(self) -> None:
 		data = str()
 		members = self.context.guild.members
 		log = helpers.loadCache("members","MemberData")
+		signedMembers = self.getSignedMembers()
 
-		#flag variables
-		stop = bool(False)
 		
 		for m in log:
-			if log[m]["position"].lower() == "intern" and log[m]["enddate"] > log[m]["startdate"]:
+			if log[m]["position"].lower() == "intern" and log[m]["enddate"] > log[m]["startdate"] and log[m]["name"] not in signedMembers:
 				data = "Hey there, I hope your week has been going well! "
-				data = data + "Don't forget to submit your weekly report to your team leader!\n"
+				data = data + "Don't forget to submit your weekly report for your team leader!\n"
+				data = data + "Enter your weekly report here: " + self.reportLink + "\n"
 			if log[m]["teamleader"] != None or log[m]["team leader"] != "na":
 				data = data + "Your team leader is " + log[m]["teamleader"]
 				
@@ -155,6 +224,27 @@ class checkup(commands.Cog):
 	async def updatecheckup(self, ctx) -> None:
 		self.context = ctx
 
+	@commands.command(name = "replink", description = "Update Google Form report link")
+	async def replink(self, ctx) -> None:
+		stripped = ctx.message.content.replace("[","").replace("]","")
+		tokens = stripped.split()
+		data = str()
+		errors = list()
+
+		if len(tokens) == 2:
+			self.reportLink = tokens[1]
+			data = "Done, saved " + tokens[1] + " as the new Google Form report link."
+		else:
+			errors.append("Invalid number of arguments used.")
+		
+		if len(data) < 1 or len(errors) > 0:
+			data = "Sorry, I am not able to fullfill your command, use the !how command for help.\n"
+			data = data + "Errors: \n"
+			for e in errors:
+				data = data + "[E] " + e + "\n"
+			await ctx.send(data)
+		else:
+			await ctx.send(data)
 
 async def setup(bot):
 	await bot.add_cog(checkup(bot))
