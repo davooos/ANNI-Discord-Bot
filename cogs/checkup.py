@@ -33,13 +33,12 @@ class checkup(commands.Cog):
 		self.creds = None
 		self.reportLink = str()
 	
-	def getSignedMembers(self) -> list():
-		# If modifying these scopes, delete the file token.json.
-		SCOPES = ["https://www.googleapis.com/auth/spreadsheets.readonly"]
-		# The ID and range of the spreadsheet.
-		SPREADSHEET_ID = "" #Paste spreadsheet id from url (after /d/)
-		RANGE_NAME = "" #Add range of !'first cell':'last cell'
-		NAMEINDEX = int() #Add index of member name location as it is listed in the google sheet.
+	def getSignedMembers(self) -> list: #get a list of members that submitted a Google Form Report
+		conf = helpers.loadConfig("GoogleSheetAPI.yaml")
+		SCOPES = conf["SCOPE"]
+		SPREADSHEET_ID = conf["SPREADSHEET_ID"]
+		RANGE_NAME = conf["RANGE_NAME"]
+		NAMEINDEX = conf["NAMEINDEX"]
 
 		signedMembers = list()
 
