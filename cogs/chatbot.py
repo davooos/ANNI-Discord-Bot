@@ -18,7 +18,7 @@ class chatbot(commands.Cog):
 		stop = bool(False)
 
 		#get log from yaml config file
-		log = helpers.loadCache("members", "MemberData")
+		log = helpers.loadCache("MemberData", "members.yaml")
 		if bool(log) == False: #check to see if the log is empty -- meaning it could not be loaded
 			print("Error: Could not get log [chatbot::ask]")
 			stop = True #set stop flag so output will not be sent to user.

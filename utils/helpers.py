@@ -26,7 +26,7 @@ def loadConfig(fileName: str()) -> dict():
 		
 	return data
 	
-def saveCache(fileName: str(), dirName: str(), data: dict()) -> None:
+def saveCache(dirName: str, fileName: str, data: dict) -> None:
 	formattedPath = Path("cache/" + dirName + "/" + fileName)
 	cachePath = Path("cache/" + dirName)
 	if dirName not in os.listdir("cache"):
@@ -36,7 +36,7 @@ def saveCache(fileName: str(), dirName: str(), data: dict()) -> None:
 		yaml.dump(data,file)
 		print("Wrote cache file " + fileName + " [saveCache]")
 		
-def loadCache(fileName: str(), dirName: str()) -> dict():
+def loadCache(dirName: str, fileName: str) -> dict:
 	data = dict() #variable used to store config from file
 	path = Path("cache/" + dirName + "/" + fileName)
 	
@@ -61,7 +61,7 @@ def getTimeStamp(value: datetime = None):
 
 	return discord_timestamp
 
-def convertTime(date: str() = None) -> datetime:
+def convertTime(date: str = None, dayMonthYear: bool = False) -> datetime:
 	fields = list()
 	data = None
 
@@ -72,15 +72,22 @@ def convertTime(date: str() = None) -> datetime:
 	else:
 		print("Error: Invalid time formate given [helpers::convertTime]")
 
-	try:
-		#takes year month day as args
-		data = datetime.datetime(int(fields[0]), int(fields[1]), int(fields[2]), tzinfo=timezone.utc)
-	except:
-		print("Error: Unable to create datetime object [helpers::convertTime]")
+	if dayMonthYear == False:
+		try:
+			#takes year month day as args
+			data = datetime.datetime(int(fields[0]), int(fields[1]), int(fields[2]), tzinfo=timezone.utc)
+		except:
+			print("Error: Unable to create YYYY-MM-DD datetime object [helpers::convertTime]")
+	else:
+		try:
+			#takes month day year as args
+			data = datetime.datetime(int(fields[2]), int(fields[0]), int(fields[1]), tzinfo=timezone.utc)
+		except:
+			print("Error: Unable to create MM-DD-YYYY datetime object [helpers::convertTime]")
 
 	return data
 	
-def checkAuth(author) -> bool():
+def checkAuth(author) -> bool:
 	authorizedRoles = ["moderator", "team leader", "leader", "admin", "chief", "officer"] #CHECK LATER WHEN MORE ROLES ARE ADDED
 
 

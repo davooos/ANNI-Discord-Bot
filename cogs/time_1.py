@@ -4,6 +4,7 @@ from discord.ext import commands
 import datetime
 from datetime import timezone
 
+
 class time(commands.Cog):
 	def __init__(self, bot):
 		self.bot = bot
@@ -36,13 +37,13 @@ class time(commands.Cog):
 		if save == True:
 			if len(tokens) == 4:
 				try:
-					linkLog = helpers.loadCache("log", "Links")
+					linkLog = helpers.loadCache("Links", "log.yaml")
 				except:
 					linkLog = dict()
 				
 				linkLog[tokens[2]] = tokens[3]
 				try:
-					helpers.saveCache("log", "Links", linkLog)
+					helpers.saveCache("Links", "log.yaml", linkLog)
 					data = "Done!"
 					await ctx.send(data)
 					return
@@ -58,7 +59,7 @@ class time(commands.Cog):
 		#Logic to show all links
 		elif all == True:
 			try:
-				linkLog = helpers.loadCache("log", "Links")
+				linkLog = helpers.loadCache("Links", "log.yaml")
 				data = "**Links: **\n"
 				for key in list(linkLog.keys()):
 					data = data + "- " + key + " : " + linkLog[key] + "\n"
@@ -76,7 +77,7 @@ class time(commands.Cog):
 		elif remove == True:
 			if len(tokens) == 3:
 				try:
-					linkLog = helpers.loadCache("log", "Links")
+					linkLog = helpers.loadCache("Links", "log.yaml")
 				except:
 					await ctx.send("No need to delete. There are no links saved.")
 					return
@@ -84,7 +85,7 @@ class time(commands.Cog):
 				if tokens[2] in list(linkLog.keys()):
 					del linkLog[tokens[2]]
 					try:
-						helpers.saveCache("log", "Links", linkLog)
+						helpers.saveCache("Links", "log.yaml", linkLog)
 						data = str(tokens[2]) + " has been deleted."
 						await ctx.send(data)
 						return
@@ -123,7 +124,7 @@ class time(commands.Cog):
 		#alert messages
 		meeting = bool(False) #sets message type to meeting (Default)
 		delay = bool(True) #sets message type to delayed meeting
-		linkLog = helpers.loadCache("log", "Links")
+		linkLog = helpers.loadCache("Links", "log.yaml")
 		link = str()
 		gotLink = bool(False)
 		

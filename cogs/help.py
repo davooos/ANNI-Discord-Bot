@@ -21,9 +21,11 @@ class help(commands.Cog):
 			"Get a detailed explanation for a command" : "`!how explain [index]`\nGet index with: \n`!how explain`",
 			"Make an alert that a meeting will be late" : "`!alert minute [number of minutes]`",
 			"Change/add my birthday to Anni" : "`!memberconfig [Your Name] birthday [YYYY-MM-DD]`",
-			"Ask Anni a question about the organization or job" : "`!ask`"
+			"Ask Anni a question about the organization or job" : "`!ask`",
+			"Get intern progress update Google Form link from ANNI" : "`!form`"
 		}
 		restricted = {
+			"First time server setup" : "Run commands to setup automated intern management features:\n`!setup`\n`!replink [Google_Form_Link]`",
 			"Display alert with meeting link" : "`!alert [link name]`\nAdd links with:\n`!link save [name] [URL]`",
 			"View, save, remove meeting links in bot" : "`!link`",
 			"Change intern/associate start date" : "`!memberconfig [Name or ID] startdate [YYYY-MM-DD]`",

@@ -1,4 +1,4 @@
 SCOPE : "https://www.googleapis.com/auth/spreadsheets.readonly" #If modifying scope, delete file token.json.
-SPREADSHEET_ID : "" #Paste spreadsheet id from url (after /d/)
-RANGE_NAME : "" #Add range of !'first cell':'last cell'
-NAMEINDEX : 0 #Add index of member name location as it is listed in the google sheet.
+RANGE_NAME : "TestForm (Responses)" #Add range of !'first cell':'last cell'
+NAMEINDEX : 1 #Add index of member name location as it is listed in the google sheet.
+TIMEINDEX : 0 #Add index of timestamp created from form submission.

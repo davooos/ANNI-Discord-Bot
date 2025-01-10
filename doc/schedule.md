@@ -17,17 +17,25 @@ date and time that the bot will remind interns
 to post updates.
 
 **USAGE**:\
+- There are two types of jobs that can be scheduled. 
+    - The first is a job that sends reminders to inters to submit forms.
+    - The second is a job that checks which forms have been submitted, notify team leaders, log the form data, and reset the Google Form.
+  Form data is saved to files in `/cache/InternSubmissionLog/`.
+
 - To get a list of current schedules:\
 `!schedule show`
 
-- To set a new schedule:\
-`!schedule [day] [HH:MM]`
+- To set a new remind scheduled job:\
+`!schedule remind [day] [HH:MM]`
+
+- To set a new scheduled job to notify team leaders of intern reports:\
+`!schedule notify [day] [HH:MM]`
 
 - To remove a schedule:\
 `!schedule remove [index]`
 
-- Example to make a new schedule for Friday at 6PM:\
-`!schedule friday 18:00`
+- Example to make a new reminder schedule for Friday at 6PM:\
+`!schedule remind friday 18:00`
 
 - Example to remove the first schedule
 (schedule indexes are displayed with the 

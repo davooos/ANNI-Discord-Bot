@@ -73,7 +73,7 @@ class view(commands.Cog):
 				log[member.id] = memData #set memdata to an element in the log dict()
 				memData = dict() #reset memdata for next iteration in loop
 
-		helpers.saveCache("members","MemberData", log)
+		helpers.saveCache("MemberData","members.yaml", log)
 
 	@commands.command(name="writecache", description="Save server member data.")
 	async def writecache(self, ctx):
@@ -123,7 +123,7 @@ class view(commands.Cog):
 		data = str()
 
 		#get log from yaml config file
-		log = helpers.loadCache("members","MemberData")
+		log = helpers.loadCache("MemberData","members.yaml")
 		if bool(log) == False: #check to see if the log is empty -- meaning it could not be loaded
 			await self.createLog(ctx) #create new log
 			log = helpers.loadConfig("members")
@@ -218,7 +218,7 @@ class view(commands.Cog):
 					log[m]["enddate"] = end_date
 				
 			try:	#save new member config to file
-				helpers.saveCache("members", "MemberData", log) #save modified config file
+				helpers.saveCache("MemberData", "members.yaml", log) #save modified config file
 				print("Successfully saved config file [view::memberconfig]")
 			except:
 				print("Error: could not save new config [view::memberconfig]")
@@ -229,10 +229,10 @@ class view(commands.Cog):
 		elif len(allerrors) == 0 and showHelp == True:
 			data = "SYNTAX: !memberconfig [name/id] [field] [new value]"
 		else:
-			data = "Sorry, I was unable to interpret your command. Use !how for help.\n"
-			data = data + "Errors:\n"
+			data = "Sorry, I was unable to interpret your command. Use `!how` for help.\n"
+			data = data + "**Errors:**\n"
 			for e in allerrors:
-				data = data + "[E]: " + e + "\n"
+				data = data + "- **[E] ->** " + e + "\n"
 
 		await ctx.send(data)    #send message created above to the discord chat the command was sent from
 
@@ -254,6 +254,7 @@ class view(commands.Cog):
 		filterSearch = bool(False)
 		allMembers = bool(False)
 		viewFields = bool(False)
+		getField = bool(False) #refers to returning all values for specified field
 		
 		#runtime variables
 		field = str()
@@ -262,10 +263,10 @@ class view(commands.Cog):
 
 
 		#get log from yaml config file
-		log = helpers.loadCache("members","MemberData")
+		log = helpers.loadCache("MemberData","members.yaml")
 		if bool(log) == False: #check to see if the log is empty -- meaning it could not be loaded
 			await self.createLog(ctx) #create new log
-			log = helpers.loadCache("members","MemberData")
+			log = helpers.loadCache("MemberData","members.yaml")
 			if bool(log) == False:
 				errors.append("Unable to load members from log.")
 
@@ -294,6 +295,10 @@ class view(commands.Cog):
 				errors.append("Unknown command option used.")
 				print("Error, invalid option used with view [view::view]")
 
+		elif len(tokens) == 1:
+			errors.append('''Using view without arguments is disabled to prevent output 
+				 overload. To view all data: `!view all`''')
+
 		else:
 			errors.append("Invalid arguments or improper arguments used.")
 			print("Error: Invalid arguments given [view::view]")
@@ -308,8 +313,8 @@ class view(commands.Cog):
 
 		elif filterSearch == True: #create a list of data containing searched fields
 			for i,member in enumerate(log):
-				if str(log[member][field]) == str(searchWord):
-					data = data + "**Member " + str(i) + ":**\n"
+				if str(log[member][field]).lower() == str(searchWord):
+					data = data + "**Member: " + str(log[member]["name"]) + "**\n"
 					for field in log[member].keys():
 						data = data + "  " + str(field) + "  :  " + str(log[member][field]) + "\n"
 					data = data + "\n\n"
@@ -321,16 +326,16 @@ class view(commands.Cog):
 			for f in fields:
 				data = data + "- " + f + "\n"
 			data = data + "\nEnter !view [field] [search value]"
-
+		
 		else:
 			errors.append("Unable to interpret command arguments.")
 
 		
 		if len(data) < 1 or len(errors) > 0:
-			data = "Sorry, I am not able to fullfill your command, use the !how command for help.\n"
-			data = data + "Errors: \n"
+			data = "Sorry, I am not able to fullfill your command, use the `!how` command for help.\n\n"
+			data = data + "**Errors: **\n"
 			for e in errors:
-				data = data + "[E] " + e + "\n"
+				data = data + "- **[E] ->** " + e + "\n"
 			await ctx.send(data)
 		else:
 			await ctx.send(data)
@@ -343,10 +348,10 @@ class view(commands.Cog):
 		errors = list()
 
 		#get log from yaml config file
-		log = helpers.loadCache("members","MemberData")
+		log = helpers.loadCache("MemberData","members.yaml")
 		if bool(log) == False: #check to see if the log is empty -- meaning it could not be loaded
 			await self.createLog(ctx) #create new log
-			log = helpers.loadCache("members","MemberData")
+			log = helpers.loadCache("MemberData","members.yaml")
 			if bool(log) == False:
 				errors.append("Unable to load members from log.")
 
@@ -363,10 +368,10 @@ class view(commands.Cog):
 			errors.append("Invalid number of arguments given.")
 
 		if len(data) < 1 or len(errors) > 0:
-			data = "Sorry, I am not able to fullfill your command, use the !how command for help.\n"
-			data = data + "Errors: \n"
+			data = "Sorry, I am not able to fullfill your command, use the `!how` command for help.\n"
+			data = data + "**Errors: **\n"
 			for e in errors:
-				data = data + "[E] " + e + "\n"
+				data = data + "- **[E] ->** " + e + "\n"
 			await ctx.send(data)
 		else:
 			await ctx.send(data)
