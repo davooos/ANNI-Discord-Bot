@@ -80,8 +80,8 @@ class view(commands.Cog):
 		try:
 			await self.createLog(ctx)
 			await ctx.send("I created and saved cache of server members.")
-		except:
-			print("Error, unable to create log file [view::writecache]")
+		except Exception as e:
+			print("Error, unable to create log file [view::writecache]\n Exception: " + e)
 			await ctx.send("Sorry, I was unable to write the log file.")
 
 	@commands.command(name="memc", description="Alias to memberconfig command.")
@@ -254,7 +254,6 @@ class view(commands.Cog):
 		filterSearch = bool(False)
 		allMembers = bool(False)
 		viewFields = bool(False)
-		getField = bool(False) #refers to returning all values for specified field
 		
 		#runtime variables
 		field = str()
@@ -339,6 +338,7 @@ class view(commands.Cog):
 			await ctx.send(data)
 		else:
 			await ctx.send(data)
+
 
 	@commands.command(name="get", description="Get data lists from bot.")
 	async def get(self, ctx) -> None:

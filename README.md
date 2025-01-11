@@ -38,7 +38,9 @@ Some of these tasks may involve gathering progress reports from members or answe
    - `.venv/bin/pip install -r requirements.txt`
 5. A file named `.env` must also be created in the root of the project directory with the following line inside:
    - `token=YOUR_BOT_TOKEN`
-6. Now, you can start the bot by running the `main.py` file with the Python interpreter:
+6. A `credentials.json` file must be obtained from your Google Cloud account and placed in `/cache/GoogleAPI/`.
+7. A `GoogleSheetID.yaml` file containing `SPREADSHEET_ID : "YOUR_SHEET_ID"` inside of `/config/`.
+8. Now, you can start the bot by running the `main.py` file with the Python interpreter:
    - `.venv/bin/python main.py`
 
 ### GENERAL USAGE:

@@ -1,5 +1,8 @@
+#Local imports
 import utils.helpers as helpers
 import utils.documentation as document
+
+#Discord imports
 import discord
 from discord.ext import commands
 
@@ -7,7 +10,7 @@ class help(commands.Cog):
 	def __init__(self, bot):
 		self.bot = bot
 		
-	def createMessage(self, authorize: bool(), option: int() = None) -> str():
+	def createMessage(self, authorize: bool, option: int = None) -> str:
 		data = str()
 		#general messages
 		commandInstruction = "\n*Copy the below command and replace values in [] with chosen values.*\n"
@@ -76,9 +79,7 @@ class help(commands.Cog):
 			data = "Sorry, something went wrong. I was unable to process the command."
 			print("Error, authorization has invalid value [help::createMessage]")
 
-		return data
-	            
-	            
+		return data  
 	            
 		
 	@commands.command(name="how", description="Gives examples of how to use commands")
