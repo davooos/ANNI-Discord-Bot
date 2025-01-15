@@ -88,11 +88,12 @@ def convertTime(date: str = None, dayMonthYear: bool = False) -> datetime:
 	return data
 	
 def checkAuth(author) -> bool:
-	authorizedRoles = ["moderator", "team leader", "leader", "admin", "chief", "officer"] #CHECK LATER WHEN MORE ROLES ARE ADDED
+	authorizedRoles = ["manager", "director", "moderator", "team leader", "leader", "admin", "chief", "officer"] #CHECK LATER WHEN MORE ROLES ARE ADDED
 
 
 	for role in author.roles:
-		if str(role).lower() in authorizedRoles:
-			return True
+		for ar in authorizedRoles:
+			if ar in str(role).lower():
+				return True
 			
 	return False
