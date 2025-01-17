@@ -80,7 +80,6 @@ class checkup(commands.Cog):
 				print("Error, could not retrieve data from Google Sheets.")
 				return
 
-			today = datetime.now(timezone.utc) #Get today's date as YYYY-MM-DD
 			#Save names of members in report
 			for idx, row in enumerate(values):
 				if idx > 0:
@@ -98,7 +97,10 @@ class checkup(commands.Cog):
 		ID = helpers.loadConfig("GoogleSheetID.yaml") #Get id of google sheet that holds intern responses
 		SCOPES = "https://www.googleapis.com/auth/spreadsheets.readonly"
 		SPREADSHEET_ID = ID["SPREADSHEET_ID"]
+		HISTORY_ID = ID["HISTORY_ID"] #Sheet to save old responses to
 		RANGE_NAME = CONF["RANGE_NAME"] 
+
+		RANGE_HISTORY_NAME = CONF["RANGE_HISTORY_NAME"]
 
 		if os.path.exists("cache/GoogleAPI/token.json"):
 			self.creds = Credentials.from_authorized_user_file("cache/GoogleAPI/token.json", SCOPES)
@@ -116,9 +118,23 @@ class checkup(commands.Cog):
 		with open("cache/GoogleAPI/token.json", "w") as token:
 			token.write(self.creds.to_json())
 
-		try:
+		try: # Use API to move data to history sheet before clearing
 			service = build("sheets", "v4", credentials=self.creds)
-			# Use the Sheets API to clear the data
+			values = service.spreadsheets().values().get('values', [])
+			response = service.spreadsheets().values.append(
+				spreadsheetId=HISTORY_ID,
+				range=RANGE_HISTORY_NAME,
+				valueInputOption="RAW",
+				insertDataOption="INSERT_ROWS",
+				body={"values": values}
+			).execute()
+
+			print("Form responses saved to history sheet:", response)
+		except Exception as e:
+			print("Error, Unable to save Google Sheet to history sheet [checkup::clearFormSheet]\n Exception: " + str(e))
+
+		try: # Use the Sheets API to clear the data
+			service = build("sheets", "v4", credentials=self.creds)
 			clear_request = service.spreadsheets().values().clear(
 				spreadsheetId=SPREADSHEET_ID,
 				range=RANGE_NAME
