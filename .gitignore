@@ -4,3 +4,5 @@
 .venv
 #ignore temp folder
 temp
+#ignore pycache
+__pycache__/
