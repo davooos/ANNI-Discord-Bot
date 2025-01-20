@@ -1,8 +1,14 @@
+#Local imports
 import utils.helpers as helpers
+
+#Discord imports
 import discord
 from discord.ext import commands
+
+#Time imports
 import datetime
 from datetime import timezone
+
 
 class time(commands.Cog):
 	def __init__(self, bot):
@@ -30,19 +36,18 @@ class time(commands.Cog):
 		else:
 			all = True
 
-		
 
 		#Logic for saving a link
 		if save == True:
 			if len(tokens) == 4:
 				try:
-					linkLog = helpers.loadCache("log", "links")
+					linkLog = helpers.loadCache("Links", "log.yaml")
 				except:
 					linkLog = dict()
 				
 				linkLog[tokens[2]] = tokens[3]
 				try:
-					helpers.saveCache("log", "links", linkLog)
+					helpers.saveCache("Links", "log.yaml", linkLog)
 					data = "Done!"
 					await ctx.send(data)
 					return
@@ -58,7 +63,7 @@ class time(commands.Cog):
 		#Logic to show all links
 		elif all == True:
 			try:
-				linkLog = helpers.loadCache("log", "links")
+				linkLog = helpers.loadCache("Links", "log.yaml")
 				data = "**Links: **\n"
 				for key in list(linkLog.keys()):
 					data = data + "- " + key + " : " + linkLog[key] + "\n"
@@ -67,8 +72,8 @@ class time(commands.Cog):
 				data = data + "**Remove saved link:** !link remove [name]\n"
 				await ctx.send(data)
 				return
-			except:
-				print("Error, unable to load cache file [time::link]")
+			except Exception as e:
+				print("Error, unable to load cache file [time::link]\n Exception: " + e)
 				data = "Sorry, I was unable to retrieve the links."
 				await ctx.send(data)
 				return
@@ -76,20 +81,21 @@ class time(commands.Cog):
 		elif remove == True:
 			if len(tokens) == 3:
 				try:
-					linkLog = helpers.loadCache("log", "links")
-				except:
+					linkLog = helpers.loadCache("Links", "log.yaml")
+				except Exception as e:
+					print("Error: Unable to read links [time::link]\n Exception: " + e)
 					await ctx.send("No need to delete. There are no links saved.")
 					return
 
 				if tokens[2] in list(linkLog.keys()):
 					del linkLog[tokens[2]]
 					try:
-						helpers.saveCache("log", "links", linkLog)
+						helpers.saveCache("Links", "log.yaml", linkLog)
 						data = str(tokens[2]) + " has been deleted."
 						await ctx.send(data)
 						return
-					except:
-						print("Error, unable to save cache file [time::link]")
+					except Exception as e:
+						print("Error, unable to save cache file [time::link]\n Exception: " + e)
 						await ctx.send("I was unable to delete that link.")
 						return
 				else:
@@ -123,7 +129,7 @@ class time(commands.Cog):
 		#alert messages
 		meeting = bool(False) #sets message type to meeting (Default)
 		delay = bool(True) #sets message type to delayed meeting
-		linkLog = helpers.loadCache("log", "links")
+		linkLog = helpers.loadCache("Links", "log.yaml")
 		link = str()
 		gotLink = bool(False)
 		
@@ -179,7 +185,7 @@ class time(commands.Cog):
 			discord_timestamp = f"<t:{unix_timestamp}:f>"
 		
 			#Construct data message for meeting mode
-			#Meeting message is used in else clause as it is the default case
+			#Meeting message is used in else clause because it is the default case
 			if delay == True and meeting != True:
 				data = data + "@" + role + " There has been a technical delay, our meeting will be starting at "
 			else:

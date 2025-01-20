@@ -1,5 +1,8 @@
+#Local imports
 import utils.helpers as helpers
 import utils.documentation as document
+
+#Discord imports
 import discord
 from discord.ext import commands
 
@@ -7,37 +10,39 @@ class help(commands.Cog):
 	def __init__(self, bot):
 		self.bot = bot
 		
-	def createMessage(self, authorize: bool(), option: int() = None) -> str():
+	def createMessage(self, authorize: bool, option: int = None) -> str:
 		data = str()
 		#general messages
-		commandInstruction = "\nCopy the below command and replace values in [] with chosen values.\n\n"
-		generalInstruction = "\nEnter !how followed by the number corresponding to an action above.\n"
+		commandInstruction = "\n*Copy the below command and replace values in [] with chosen values.*\n"
+		generalInstruction = "\n**Enter `!how` followed by the number corresponding to an action above.**\n"
 	    
 		#flag variables
 
 
 		#options for display
 		basic = {
-			"Get a detailed explanation for a command" : "!how explain [index]\nGet index with: !how explain",
-			"Make an alert that a meeting will be late" : "!alert minute [number of minutes]",
-			"Change/add my birthday to Anni" : "!memberconfig [Your Name] birthday [YYYY-MM-DD]",
-			"Ask Anni a question about the organization or job" : "!ask"
+			"Get a detailed explanation for a command" : "`!how explain [index]`\nGet index with: \n`!how explain`",
+			"Make an alert that a meeting will be late" : "`!alert minute [number of minutes]`",
+			"Change/add my birthday to Anni" : "`!memberconfig [Your Name] birthday [YYYY-MM-DD]`",
+			"Ask Anni a question about the organization or job" : "`!ask`",
+			"Get intern progress update Google Form link from ANNI" : "`!form`"
 		}
 		restricted = {
-			"Display alert with meeting link" : "!alert [link name]\n(Links are added with the '!link save [name] [URL]' command)",
-			"View, save, remove meeting links in bot" : "!link",
-			"Change intern/associate start date" : "!memberconfig [Name or ID] startDate [YYYY-MM-DD]",
-			"Change intern/associate end date" : "!memberconfig [Name or ID] endDate [YYYY-MM-DD]",
-			"Change member position(role in company)" : "!memberconfig [Name or ID] position [intern/volunteer/alumni]",
-			"Schedule a day and time for Anni to remind interns to post updates (EST)" : "!schedule [day] [hour:minute]\n\nHour and minute using the 24-hour clock.",
-			"Remove scheduled time for Anni to remind interns" : "!schedule remove [Job ID]\n\nGet Job ID from:\n!schedulecheck"
+			"First time server setup" : "Run commands to setup automated intern management features:\n`!setup`\n`!replink [Google_Form_Link]`",
+			"Display alert with meeting link" : "`!alert [link name]`\nAdd links with:\n`!link save [name] [URL]`",
+			"View, save, remove meeting links in bot" : "`!link`",
+			"Change intern/associate start date" : "`!memberconfig [Name or ID] startdate [YYYY-MM-DD]`",
+			"Change intern/associate end date" : "`!memberconfig [Name or ID] enddate [YYYY-MM-DD]`",
+			"Change member position(role in company)" : "`!memberconfig [Name or ID] position [intern/volunteer/alumni]`",
+			"Schedule a day and time for Anni to remind interns to post updates (EST)" : "`!schedule [day] [hour:minute]`\nSpecify hour and minute using the 24-hour clock.",
+			"Remove scheduled time for Anni to remind interns" : "`!schedule remove [Job ID]`\nGet Job ID from:\n`!schedulecheck`"
 		}
 
 		#check authorization
 		if authorize == False:
 			if option == None:
 				for idx,i in enumerate(basic): #iterate through a range of numbers the length of the question list
-					data = data + str(idx) + ": " + i + "\n"
+					data = data + str(idx) + ". " + i + "\n"
 				data = data + generalInstruction
 			else:
 				if option < len(basic):
@@ -51,20 +56,20 @@ class help(commands.Cog):
 		elif authorize == True:
 			if option == None:
 				for idx,i in enumerate(basic):
-					data = data + str(idx) + ": " + i + "\n"
+					data = data + str(idx) + ". " + i + "\n"
 				for idx,r in enumerate(restricted): 
 					#start counting at the length of basic for index
-					data = data + str(idx + len(basic)) + ": " + r + "\n"
+					data = data + str(idx + len(basic)) + ". " + r + "\n"
 				data = data + generalInstruction
 			else:
 				if option < len(basic) + len(restricted):
 					if option < len(basic):
 						for idx,op in enumerate(basic): #iterate through basic dictionary to find searched value
-							if option == idx:
+							if option - 1 == idx: #markdown lists indexes starting from 1 rather than 0
 								data = commandInstruction + basic[op]
 					else:
 						for idx,op in enumerate(restricted): #iterate through restricted dictionary to find searched value
-							if option - len(basic) == idx:
+							if option - len(basic) - 1 == idx: #markdown lists indexes starting from 1 rather than 0
 								data = commandInstruction + restricted[op]
 				else:
 					data = "Sorry, It appears that I do not have a question for that number."
@@ -74,9 +79,7 @@ class help(commands.Cog):
 			data = "Sorry, something went wrong. I was unable to process the command."
 			print("Error, authorization has invalid value [help::createMessage]")
 
-		return data
-	            
-	            
+		return data  
 	            
 		
 	@commands.command(name="how", description="Gives examples of how to use commands")

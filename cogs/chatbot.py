@@ -18,10 +18,11 @@ class chatbot(commands.Cog):
 		stop = bool(False)
 
 		#get log from yaml config file
-		log = helpers.loadCache("members", "MemberData")
-		if bool(log) == False: #check to see if the log is empty -- meaning it could not be loaded
-			print("Error: Could not get log [chatbot::ask]")
-			stop = True #set stop flag so output will not be sent to user.
+		try:
+			log = helpers.loadCache("MemberData", "members.yaml")
+		except Exception as e:
+			print("Error: Could not get log [chatbot::ask]\n Exception: " + e)
+			stop = True
 		
 		if stop == False:
 			for member in log:
@@ -30,7 +31,6 @@ class chatbot(commands.Cog):
 
 			#Token bank to decifer commands
 			getQuestions = ["all", "print", "show", "questions", "quest", "help"] #command tokens for showing quesitons
-			positions = ["moderator","graphic designer", "animator", "software engineer", "communications"]
 			leaders = ["chief", "officer", "manager", "leader"]
 			questions = ["When does my internship end?", "What team am I part of?", "Who are the moderators?", "Who are my team leaders?"]
 			data = str()
