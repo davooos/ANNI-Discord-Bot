@@ -76,14 +76,14 @@ def convertTime(date: str = None, dayMonthYear: bool = False) -> datetime:
 		try:
 			#takes year month day as args
 			data = datetime.datetime(int(fields[0]), int(fields[1]), int(fields[2]), tzinfo=timezone.utc)
-		except:
-			print("Error: Unable to create YYYY-MM-DD datetime object [helpers::convertTime]")
+		except Exception as e:
+			print("Error: Unable to create YYYY-MM-DD datetime object [helpers::convertTime]\n Exception: " + str(e))
 	else:
 		try:
 			#takes month day year as args
 			data = datetime.datetime(int(fields[2]), int(fields[0]), int(fields[1]), tzinfo=timezone.utc)
-		except:
-			print("Error: Unable to create MM-DD-YYYY datetime object [helpers::convertTime]")
+		except Exception as e:
+			print("Error: Unable to create MM-DD-YYYY datetime object [helpers::convertTime]\n Exception: " + str(e))
 
 	return data
 	

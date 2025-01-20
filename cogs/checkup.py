@@ -1,7 +1,6 @@
 #Imports
 import utils.helpers as helpers
 import os.path
-import datetime
 from datetime import datetime, timezone
 
 #Discord imports
@@ -41,12 +40,15 @@ class checkup(commands.Cog):
 	def getReportedMembers(self, clear: bool = False) -> list: #get a list of members that submitted a Google Form Report
 		CONF = helpers.loadConfig("GoogleSheetAPI.yaml") #Get config for API
 		ID = helpers.loadConfig("GoogleSheetID.yaml") #Get id of google sheet that holds intern responses
-		SCOPES = "https://www.googleapis.com/auth/spreadsheets.readonly"
+		SCOPES = CONF["SCOPE"]
 		SPREADSHEET_ID = ID["SPREADSHEET_ID"]
 		RANGE_NAME = "Form Responses 1" #Add range of !'first cell':'last cell'
 		NAMEINDEX = CONF["NAMEINDEX"]
+		TIMEINDEX = CONF["TIMEINDEX"]
+		CUTOFFAGE = CONF["CUTOFFAGE"]
 
 		reportedMembers = list()
+		today = datetime.now(timezone.utc)
 
 		if os.path.exists("cache/GoogleAPI/token.json"):
 			self.creds = Credentials.from_authorized_user_file("cache/GoogleAPI/token.json", SCOPES)
@@ -80,70 +82,24 @@ class checkup(commands.Cog):
 				print("Error, could not retrieve data from Google Sheets.")
 				return
 
+			values.pop(0) #remove first entry in response list - column title
 			#Save names of members in report
-			for idx, row in enumerate(values):
-				if idx > 0:
-					reportedMembers.append(str(row[NAMEINDEX]))
-					
+			for row in reversed(values): #Reverse values so newest entries are at the beginning
+				try:
+					responseDate = datetime.strptime(str(row[TIMEINDEX]), "%m/%d/%Y %H:%M:%S").replace(tzinfo=timezone.utc)
+					responseAge = today - responseDate
+					if responseAge.days < CUTOFFAGE: #only add responses that are less than four days old
+						reportedMembers.append(str(row[NAMEINDEX]))
+					else:
+						break #Since entries are in order of newest to oldest, an old entry breaks the loop
+				except Exception as e:
+					print("Error, invalid time format in response sheet. [checkup::getReportedMembers]\n Exception: " + str(e))	
 
 		except HttpError as e:
 			print("Error, Http Error encountered[checkup::getReportedMembers]:\n Exception: " + str(e))
 
 		#Return list of member names from report
 		return reportedMembers
-	
-	def clearFormSheet(self) -> None:
-		CONF = helpers.loadConfig("GoogleSheetAPI.yaml") #Get config for API
-		ID = helpers.loadConfig("GoogleSheetID.yaml") #Get id of google sheet that holds intern responses
-		SCOPES = "https://www.googleapis.com/auth/spreadsheets.readonly"
-		SPREADSHEET_ID = ID["SPREADSHEET_ID"]
-		HISTORY_ID = ID["HISTORY_ID"] #Sheet to save old responses to
-		RANGE_NAME = CONF["RANGE_NAME"] 
-
-		RANGE_HISTORY_NAME = CONF["RANGE_HISTORY_NAME"]
-
-		if os.path.exists("cache/GoogleAPI/token.json"):
-			self.creds = Credentials.from_authorized_user_file("cache/GoogleAPI/token.json", SCOPES)
-
-		# If there are no (valid) credentials available, let the user log in.
-		if not self.creds or not self.creds.valid:
-			if self.creds and self.creds.expired and self.creds.refresh_token:
-				self.creds.refresh(Request())
-			else:
-				flow = InstalledAppFlow.from_client_secrets_file(
-				"cache/GoogleAPI/credentials.json", SCOPES
-				)
-			self.creds = flow.run_local_server(port=0)
-		# Save the credentials for the next run
-		with open("cache/GoogleAPI/token.json", "w") as token:
-			token.write(self.creds.to_json())
-
-		try: # Use API to move data to history sheet before clearing
-			service = build("sheets", "v4", credentials=self.creds)
-			values = service.spreadsheets().values().get('values', [])
-			response = service.spreadsheets().values.append(
-				spreadsheetId=HISTORY_ID,
-				range=RANGE_HISTORY_NAME,
-				valueInputOption="RAW",
-				insertDataOption="INSERT_ROWS",
-				body={"values": values}
-			).execute()
-
-			print("Form responses saved to history sheet:", response)
-		except Exception as e:
-			print("Error, Unable to save Google Sheet to history sheet [checkup::clearFormSheet]\n Exception: " + str(e))
-
-		try: # Use the Sheets API to clear the data
-			service = build("sheets", "v4", credentials=self.creds)
-			clear_request = service.spreadsheets().values().clear(
-				spreadsheetId=SPREADSHEET_ID,
-				range=RANGE_NAME
-			)
-
-			response = clear_request.execute()
-			print("Form responses cleared:", response)
-		except Exception as e:
-			print("Error, Unable to clear Google Sheet [checkup::clearFormSheet]\n Exception: " + str(e))
 
 
 	async def checkMissedSubmissions(self) -> None:
@@ -417,16 +373,20 @@ class checkup(commands.Cog):
 	async def testapi(self, ctx) -> None:
 		members = list()
 		data = str()
+		authorized = helpers.checkAuth(ctx.author) #check authorization
 
-		try:
-			members = self.getReportedMembers()
-			data = "Success, the API is fully functional!\n"
-			data = data + "Entries in Google Sheet: " + str(len(members))
-			data = data + "\n\n" + str(members)
-		except Exception as e:
-			print("Error, Google Sheets API test failed [checkup::testapi]\n Exception: " + str(e))
-			data = "Sorry, I was not able to get a response from the Google Sheets API."
-		
+		if authorized == True:
+			try:
+				members = self.getReportedMembers()
+				data = "Success, the API is fully functional!\n"
+				data = data + "Entries in Google Sheet: " + str(len(members))
+				data = data + "\n\n" + str(members)
+			except Exception as e:
+				print("Error, Google Sheets API test failed [checkup::testapi]\n Exception: " + str(e))
+				data = "Sorry, I was not able to get a response from the Google Sheets API."
+		else:
+			data = "Sorry, you are not authorized to use this command."
+
 		await ctx.send(data)
 
 
