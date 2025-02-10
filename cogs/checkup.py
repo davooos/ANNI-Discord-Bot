@@ -18,6 +18,8 @@ from google_auth_oauthlib.flow import InstalledAppFlow
 from googleapiclient.discovery import build
 from googleapiclient.errors import HttpError
 
+# TODO: Store keys in environment variables
+
 class checkup(commands.Cog):
 	def __init__(self, bot):
 		self.bot = bot
@@ -35,9 +37,12 @@ class checkup(commands.Cog):
 
 		print("IMPORTANT SETUP: Run `!setup` command in server to set up intern reminder feature!")
 		print("IMPORTANT SETUP: Add Google Form link with `!replink` command")
-	
+
 
 	def getReportedMembers(self, clear: bool = False) -> list: #get a list of members that submitted a Google Form Report
+		# TODO: Remove all google sheets API code and replace with Supabase API code
+		# TODO: Query the database for the submissions captured by a webhook
+		# TODO: Match submissions with the intern's name and return list of reported members
 		CONF = helpers.loadConfig("GoogleSheetAPI.yaml") #Get config for API
 		ID = helpers.loadConfig("GoogleSheetID.yaml") #Get id of google sheet that holds intern responses
 		SCOPES = CONF["SCOPE"]
@@ -49,7 +54,6 @@ class checkup(commands.Cog):
 
 		reportedMembers = list()
 		today = datetime.now(timezone.utc)
-
 		if os.path.exists("cache/GoogleAPI/token.json"):
 			self.creds = Credentials.from_authorized_user_file("cache/GoogleAPI/token.json", SCOPES)
 
@@ -103,21 +107,24 @@ class checkup(commands.Cog):
 
 
 	async def checkMissedSubmissions(self) -> None:
+		# TODO: Query database for interns with no submissions in the past week
+		# TODO: Send messages to team leaders regarding intern form submissions
+
 		if self.reportLink is not None and self.creds is not None:
 			data = str()
 			members = self.context.guild.members
-			log = helpers.loadCache("MemberData","members.yaml")
+			log = helpers.loadCache("MemberData","members.yaml") # TODO: Instead, query the database for the member data
 			teams = dict()
 
 			#Get team leaders and create teamData keys with their names
-			for member in members:
+			for member in members: # TODO: Remove this for loop
 				for role in member.roles:
 					if "leader" in role or "manager" in role:
 						teams[member.global_name] = dict()
 						teams[member.global_name]["reported"] = list()
 						teams[member.global_name]["noreport"] = list()
 			#Get team members and add them to list values according to team leader keys
-			for member in log:
+			for member in log: # TODO: Remove this for loop
 				for leader in teams:
 					if member["teamleader"] == leader:
 						if member["name"] in self.reportedMembers:
@@ -150,6 +157,8 @@ class checkup(commands.Cog):
 			print("Error, Google Form link or API credentials are missing. [checkup::checkMissedSubmissions]")
 
 	async def checkSubmissions(self) -> None:
+		# TODO: Query database for interns who haven't submitted a report in the past week
+		# TODO: Send messages to interns regarding weekly report submission
 		if self.reportLink is not None and self.creds is not None:
 			data = str()
 			members = self.context.guild.members
@@ -186,7 +195,7 @@ class checkup(commands.Cog):
 			await self.checkSubmissions()
 		else:
 			data = "Sorry, you do not have authorization to run this command."
-			
+
 		await ctx.send(data)
 
 	@commands.command(name = "schedule", description = "Schedules intern reminders for a specific time and date")
@@ -368,7 +377,7 @@ class checkup(commands.Cog):
 		else:
 			await ctx.send(data)
 		
-	
+	# TODO: Remove this function
 	@commands.command(name = "testapi", description = "Run a test on the Google Sheets API.")
 	async def testapi(self, ctx) -> None:
 		members = list()
